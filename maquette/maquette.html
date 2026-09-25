@@ -1,0 +1,1042 @@
+<title>Maquette Générateur de portails</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Albert+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#F3F5F4; --surface:#FFFFFF; --sunk:#E8EDEB; --line:#D3DBD8;
+  --ink:#13262B; --ink2:#4A5E63; --ink3:#77898D;
+  --accent:#0E7C74; --accent-ink:#FFFFFF; --accent-soft:#D6EEEA;
+  --partner:#6B4FA1; --partner-soft:#ECE6F6;
+  --client:#1D5FA8; --client-soft:#DDE9F7;
+  --warn:#9A5B0C; --warn-soft:#FBEBD3; --ok:#2F7A3A; --ok-soft:#DCEFDD;
+  --shadow:0 1px 2px rgba(19,38,43,.06),0 4px 16px rgba(19,38,43,.06);
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Albert Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#0F1B1E; --surface:#152428; --sunk:#1C2E33; --line:#2A3F45;
+    --ink:#E6EEEC; --ink2:#A9BBBD; --ink3:#7E9295;
+    --accent:#3FB7AA; --accent-ink:#06201D; --accent-soft:#16403C;
+    --partner:#A98BE0; --partner-soft:#2C2342;
+    --client:#6FA8EC; --client-soft:#1A2F48;
+    --warn:#E3A857; --warn-soft:#3A2A12; --ok:#7BC786; --ok-soft:#1B3520;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0F1B1E; --surface:#152428; --sunk:#1C2E33; --line:#2A3F45;
+  --ink:#E6EEEC; --ink2:#A9BBBD; --ink3:#7E9295;
+  --accent:#3FB7AA; --accent-ink:#06201D; --accent-soft:#16403C;
+  --partner:#A98BE0; --partner-soft:#2C2342;
+  --client:#6FA8EC; --client-soft:#1A2F48;
+  --warn:#E3A857; --warn-soft:#3A2A12; --ok:#7BC786; --ok-soft:#1B3520;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:28px;font-weight:700}
+h2{font-size:20px;font-weight:700}
+h3{font-size:16px;font-weight:600}
+.muted{color:var(--ink2)}
+.small{font-size:13px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* intro */
+.intro{display:flex;flex-wrap:wrap;gap:12px 32px;align-items:end;justify-content:space-between;margin-bottom:18px}
+.intro p{margin:6px 0 0;max-width:68ch}
+.example{font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;max-width:460px}
+.example b{font-weight:600}
+
+/* role switcher */
+.roles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.role{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;text-align:left;display:grid;gap:2px}
+.role .k{font-family:var(--mono);font-size:12px;color:var(--ink3)}
+.role .t{font-weight:600}
+.role .w{font-size:12px;color:var(--ink2)}
+.role[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+@media (max-width:760px){.roles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+@media (max-width:1000px){.layout{grid-template-columns:minmax(0,1fr)}}
+
+/* app frame */
+.frame{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.bar{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-family:var(--display);font-weight:700;color:#fff;font-size:14px;flex:none}
+.bar .name{font-weight:600}
+.bar .url{font-family:var(--mono);font-size:12px;color:var(--ink3);margin-left:auto}
+.body{padding:16px;display:grid;gap:16px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.panel{border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px;align-content:start}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--sunk);border-radius:10px;padding:10px 12px;display:grid;gap:2px}
+.tile .v{font-family:var(--mono);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.tile .l{font-size:12px;color:var(--ink2)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);text-align:left;font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.r,th.r{text-align:right}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--sunk)}
+tr.sel td{background:var(--accent-soft)}
+.pill{display:inline-block;font-size:12px;border-radius:999px;padding:2px 8px;font-weight:600;white-space:nowrap}
+.p-ok{background:var(--ok-soft);color:var(--ok)}
+.p-warn{background:var(--warn-soft);color:var(--warn)}
+.p-info{background:var(--sunk);color:var(--ink2)}
+.p-partner{background:var(--partner-soft);color:var(--partner)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:7px 12px;font-weight:600;font-size:14px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.partner{background:var(--partner);border-color:var(--partner);color:#fff}
+.btn.client{background:var(--client);border-color:var(--client);color:#fff}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spread{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+label.opt{display:flex;gap:8px;align-items:center;padding:6px 8px;border-radius:8px;background:var(--sunk);font-size:14px}
+label.opt input{accent-color:var(--accent)}
+label.opt.locked{opacity:.5}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px}
+.field{display:grid;gap:4px;font-size:13px;color:var(--ink2)}
+.field input,.field select{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 9px;font-size:14px;color:var(--ink)}
+.chain{display:flex;gap:6px;align-items:stretch;flex-wrap:wrap}
+.step{flex:1 1 120px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;gap:2px;min-width:0}
+.step .who{font-size:12px;color:var(--ink3)}
+.step .amt{font-family:var(--mono);font-weight:600;font-size:17px}
+.step .co{font-family:var(--mono);font-size:12px;color:var(--ink2)}
+.arrow{align-self:center;color:var(--ink3)}
+.tree{font-size:14px;display:grid;gap:4px}
+.tree .n{display:flex;gap:8px;align-items:center}
+.tree .l1{padding-left:0}.tree .l2{padding-left:20px}.tree .l3{padding-left:40px}.tree .cl{padding-left:60px;color:var(--ink2)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--ground);padding:10px 16px;border-radius:10px;font-size:14px;box-shadow:var(--shadow);z-index:10}
+
+/* chat */
+.chat{display:grid;grid-template-rows:auto 1fr auto;min-height:460px}
+.msgs{display:grid;gap:12px;align-content:start;padding:16px;max-height:520px;overflow-y:auto}
+.msg{max-width:78%;padding:10px 13px;border-radius:14px;font-size:14.5px}
+.msg.me{justify-self:end;background:var(--client);color:#fff;border-bottom-right-radius:4px}
+.msg.ai{justify-self:start;background:var(--sunk);border-bottom-left-radius:4px}
+.msg .src{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.msg .src span{font-size:12px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:13.5px}
+.chip:hover{border-color:var(--client)}
+.composer{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line);align-items:center}
+.composer input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.mic{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;flex:none}
+.card{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px;display:grid;gap:8px;margin-top:8px;color:var(--ink)}
+.card dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:13.5px}
+.card dt{color:var(--ink3)}
+.card dd{margin:0}
+.side{display:grid;gap:4px;align-content:start;padding:12px;border-right:1px solid var(--line);font-size:14px}
+.side button{text-align:left;background:none;border:0;padding:7px 10px;border-radius:8px}
+.side button[aria-current="true"]{background:var(--client-soft);color:var(--client);font-weight:600}
+.admin{display:grid;grid-template-columns:190px minmax(0,1fr)}
+@media (max-width:700px){.admin{grid-template-columns:minmax(0,1fr)}.side{grid-auto-flow:column;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line)}}
+
+/* questions */
+.qs{position:sticky;top:calc(12px + env(safe-area-inset-top,0px));display:grid;gap:10px}
+.qhead{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:6px}
+.progress{height:6px;background:var(--sunk);border-radius:999px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);width:0}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px}
+.q.done{border-color:var(--accent)}
+.q p{margin:0;font-weight:600;font-size:14px}
+.q .ctx{font-weight:400;color:var(--ink2);font-size:13px}
+.q .choices{display:flex;flex-wrap:wrap;gap:6px}
+.q .choices button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 9px;font-size:13px;text-align:left}
+.q .choices button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.q textarea{border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:13px;background:var(--surface);resize:vertical;min-height:34px}
+.saved{font-size:12px;color:var(--ok)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:6px 11px;font-size:13.5px}
+.seg button[aria-pressed="true"]{background:var(--client);color:#fff}
+.blocks{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.block{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;align-content:start}
+.block h4{margin:0;font-family:var(--display);font-size:15px;display:flex;justify-content:space-between;gap:8px}
+.tg{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px}
+.sw{appearance:none;width:34px;height:20px;border-radius:999px;background:var(--line);position:relative;flex:none;cursor:pointer;transition:background .15s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s}
+.sw:checked{background:var(--client)}.sw:checked::after{left:16px}
+.prio{display:grid;gap:4px}
+.prio div{display:flex;gap:6px;align-items:center;background:var(--sunk);border-radius:8px;padding:4px 8px;font-size:13.5px}
+.prio div span{flex:1}
+.prio button{border:0;background:none;padding:0 4px;color:var(--ink2)}
+.eff{border:1px dashed var(--client);border-radius:12px;padding:12px;display:grid;gap:6px;font-size:13.5px;background:var(--client-soft)}
+.eff .why{color:var(--ink3);font-size:12px}
+.banner{background:var(--warn-soft);color:var(--warn);padding:8px 16px;font-size:13.5px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.details{font-size:12px;margin-top:6px}
+.details summary{cursor:pointer;color:var(--ink2)}
+.msg.refus{background:var(--warn-soft);color:var(--ink)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.fbox{border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:150px;flex:1 1 150px;display:grid;gap:2px;background:var(--surface)}
+.fbox .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);font-weight:600}
+.fbox.start{border-color:var(--client)}.fbox.val{border-color:var(--warn);background:var(--warn-soft)}.fbox.call{border-style:dashed}.fbox.new{border-color:var(--ok);background:var(--ok-soft)}
+.farrow{align-self:center;color:var(--ink3)}
+.alist{display:grid;gap:6px;align-content:start}
+.aitem{display:flex;justify-content:space-between;gap:8px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface);text-align:left;width:100%}
+.aitem[aria-current="true"]{border-color:var(--client);box-shadow:inset 0 0 0 1px var(--client)}
+.dry{border:1px dashed var(--ok);background:var(--ok-soft);border-radius:10px;padding:10px 12px;font-size:13.5px;display:grid;gap:4px}
+.phone-wrap{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;padding:16px}
+.phone{width:320px;max-width:100%;height:640px;border-radius:40px;background:#0B1416;padding:12px;box-shadow:var(--shadow);flex:none}
+.screen{width:100%;height:100%;border-radius:30px;background:var(--surface);overflow:hidden;display:grid;grid-template-rows:auto 1fr auto;position:relative;color:var(--ink)}
+.sbar{display:flex;justify-content:space-between;padding:10px 20px 4px;font-size:11px;font-family:var(--mono);color:var(--ink2)}
+.shead{display:flex;align-items:center;gap:8px;padding:6px 14px 10px;background:var(--client-soft)}
+.shead .logo{width:24px;height:24px;font-size:11px;border-radius:7px}
+.sbody{overflow-y:auto;padding:12px;display:grid;gap:10px;align-content:start}
+.snav{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);background:var(--surface)}
+.snav button{border:0;background:none;padding:8px 0 10px;font-size:11px;color:var(--ink3);display:grid;gap:2px;justify-items:center;position:relative}
+.snav button[aria-current="true"]{color:var(--client);font-weight:600}
+.snav .ic{font-size:17px}
+.badge{position:absolute;top:4px;right:18px;background:var(--warn);color:#fff;border-radius:999px;font-size:10px;padding:0 5px}
+.pmsg{max-width:85%;padding:8px 11px;border-radius:14px;font-size:13px}
+.pmsg.me{justify-self:end;background:var(--client);color:#fff}
+.pmsg.ai{justify-self:start;background:var(--sunk)}
+.pcomp{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--line)}
+.pcomp input{flex:1;min-width:0;border:1px solid var(--line);border-radius:999px;padding:7px 11px;font-size:13px;background:var(--surface)}
+.pbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;width:34px;height:34px;display:grid;place-items:center;flex:none;font-size:15px}
+.rec{display:grid;justify-items:center;gap:12px;padding-top:16px;text-align:center}
+.recdot{width:96px;height:96px;border-radius:50%;background:var(--client);color:#fff;border:0;font-size:14px;font-weight:600}
+.recdot.on{background:#C0392B}
+.timer{font-family:var(--mono);font-size:30px;font-variant-numeric:tabular-nums}
+.marks{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.lock{position:absolute;inset:0;background:var(--surface);display:grid;place-items:center;text-align:center;gap:12px;padding:24px;z-index:2;align-content:center}
+.pcard{border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:6px;font-size:13px}
+.side-note{flex:1 1 280px;display:grid;gap:10px;font-size:14px}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.stp{border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px;background:var(--surface)}
+.stp[aria-current="step"]{background:var(--client);border-color:var(--client);color:#fff;font-weight:600}
+.stp.done{border-color:var(--ok);color:var(--ok)}
+.quote{border-left:3px solid var(--line);padding:4px 10px;font-size:13.5px;color:var(--ink2)}
+.doc{border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:22px 26px;display:grid;gap:10px;font-size:14px;max-width:760px}
+.doc header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--client);padding-bottom:10px;gap:10px}
+.doc h4{margin:6px 0 0;font-family:var(--display);font-size:15px;color:var(--client)}
+.doc p{margin:0}
+.hl{background:var(--warn-soft);border-radius:4px;padding:0 3px}
+.added{background:var(--ok-soft);border-radius:4px;padding:2px 4px}
+.mk{font-size:11px;font-weight:700;border-radius:4px;padding:0 5px;background:var(--client-soft);color:var(--client);margin-right:4px;text-transform:uppercase;letter-spacing:.04em}
+.doc[contenteditable="true"]{outline:2px dashed var(--client);outline-offset:4px}
+input.v{width:52px;border:1px solid var(--line);border-radius:6px;padding:3px 5px;text-align:right;background:var(--surface)}
+.fgrid{display:grid;grid-template-columns:minmax(220px,280px) minmax(0,1fr);gap:14px}
+@media (max-width:760px){.fgrid{grid-template-columns:minmax(0,1fr)}}
+.flist{display:grid;gap:6px;align-content:start}
+.src-note{font-size:12px;background:var(--partner-soft);color:var(--partner);border-radius:8px;padding:6px 10px}
+.pipe{display:flex;gap:4px;flex-wrap:wrap}
+.pipe button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 10px;font-size:13px}
+.pipe button[aria-pressed="true"]{background:var(--client);color:#fff;border-color:var(--client)}
+.tl{display:grid;gap:8px;border-left:2px solid var(--line);padding-left:12px}
+.tl div{font-size:13.5px}
+.tl .d{font-family:var(--mono);font-size:12px;color:var(--ink3)}
+textarea.cons{border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:13.5px;background:var(--surface);min-height:60px;resize:vertical}
+@media (prefers-reduced-motion:no-preference){.msg{animation:in .25s ease-out}@keyframes in{from{transform:translateY(4px)}to{transform:none}}}
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <div>
+      <div class="eyebrow">Maquette de test · données fictives</div>
+      <h1>Générateur de portails IA</h1>
+      <p class="muted">Parcourez les quatre outils et l'application mobile avec un exemple complet. Chaque écran est cliquable. À droite, des questions pour affiner le cahier des charges : vos réponses sont enregistrées et je les relirai.</p>
+    </div>
+    <div class="example"><b>L'exemple :</b> vous (l'opérateur) vendez via <b>Numérique Sud</b> (partenaire niveau 1), qui a un sous-partenaire <b>Cabinet Oxalis</b>. Numérique Sud a apporté la <b>Mairie de Saint-Aubin</b> (4 200 habitants, 38 agents), dont le portail est <span class="num">ia.saint-aubin.fr</span>.</div>
+  </header>
+
+  <nav class="roles" role="tablist" aria-label="Outil affiché">
+    <button class="role" role="tab" id="tab-A" data-role="A" aria-selected="true"><span class="k">A</span><span class="t">Générateur</span><span class="w">Vous, opérateur</span></button>
+    <button class="role" role="tab" id="tab-D" data-role="D" aria-selected="false"><span class="k">D</span><span class="t">Espace partenaire</span><span class="w">Numérique Sud</span></button>
+    <button class="role" role="tab" id="tab-B" data-role="B" aria-selected="false"><span class="k">B</span><span class="t">Portail admin</span><span class="w">Admin de la mairie</span></button>
+    <button class="role" role="tab" id="tab-C" data-role="C" aria-selected="false"><span class="k">C</span><span class="t">Portail utilisateur</span><span class="w">Agent de la mairie</span></button>
+    <button class="role" role="tab" id="tab-M" data-role="M" aria-selected="false"><span class="k">C · mobile</span><span class="t">Application mobile</span><span class="w">Agent, sur téléphone</span></button>
+  </nav>
+
+  <div class="layout">
+    <main>
+      <!-- ============ A. GENERATEUR ============ -->
+      <section class="frame" id="view-A">
+        <div class="bar"><div class="logo" style="background:var(--accent)">G</div><span class="name">Générateur</span><span class="pill p-info">Accès opérateur uniquement</span><span class="url">generateur.interne</span></div>
+        <div class="body">
+          <div class="tiles">
+            <div class="tile"><span class="l">Portails actifs</span><span class="v">6 / 500</span></div>
+            <div class="tile"><span class="l">Tokens ce mois</span><span class="v">48,2 M</span></div>
+            <div class="tile"><span class="l">Coût réel</span><span class="v">1 212 €</span></div>
+            <div class="tile"><span class="l">Montants calculés</span><span class="v">2 074 €</span></div>
+            <div class="tile"><span class="l">Demandes partenaires</span><span class="v" id="req-count">1</span></div>
+          </div>
+
+          <div class="panel">
+            <div class="spread"><h3>Portails</h3><span class="small muted">Cliquez une ligne pour voir son réglage</span></div>
+            <div class="scroll">
+              <table id="portals">
+                <thead><tr><th>Client</th><th>Apporté par</th><th>Forfait</th><th>Hébergement</th><th class="r">Tokens</th><th class="r">Coût réel</th><th>État</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="cols">
+            <div class="panel" id="detail">
+              <div class="spread"><h3 id="d-title">Mairie de Saint-Aubin</h3><span class="pill p-partner" id="d-by">via Numérique Sud</span></div>
+              <div class="eyebrow">Outils ouverts sur ce portail</div>
+              <div class="opts" id="d-tools"></div>
+              <div class="eyebrow">Coefficient de l'opérateur, par modèle</div>
+              <div class="opts" id="d-coefs"></div>
+              <p class="small muted" style="margin:0">Les cases grisées ont été fermées par le partenaire : vous voyez son choix, appliqué immédiatement.</p>
+            </div>
+            <div class="panel">
+              <h3>Réseau de partenaires</h3>
+              <div class="tree">
+                <div class="n l1"><span class="pill p-partner">N1</span> Numérique Sud <span class="small muted">· coef. 1,30</span></div>
+                <div class="n l2"><span class="pill p-partner">N2</span> Cabinet Oxalis <span class="small muted">· coef. fixé par Numérique Sud</span></div>
+                <div class="n cl">↳ Communauté de communes du Val d'Arre</div>
+                <div class="n cl" style="padding-left:40px">↳ Mairie de Saint-Aubin</div>
+                <div class="n cl" style="padding-left:40px">↳ Office de tourisme Garrigues</div>
+                <div class="n l1"><span class="pill p-partner">N1</span> Atelier Data Ouest <span class="small muted">· coef. 1,25</span></div>
+                <div class="n cl" style="padding-left:20px">↳ Transports Morel SAS</div>
+                <div class="n l1"><span class="pill p-info">Direct</span> Vos clients directs</div>
+                <div class="n cl" style="padding-left:20px">↳ Cabinet d'avocats Rivière · ↳ SIVOM Haute-Vallée</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="spread"><h3>Qui gagne quoi : la chaîne pour 100 € d'usage réel</h3>
+              <div class="row small"><span class="muted">Numérique Sud → Oxalis :</span>
+                <button class="chip" data-mode="coef" aria-pressed="true" id="m-coef">Coefficient</button>
+                <button class="chip" data-mode="prix" aria-pressed="false" id="m-prix">Prix direct</button>
+              </div>
+            </div>
+            <div class="chain" id="chain"></div>
+            <p class="small muted" style="margin:0" id="chain-note"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ D. PARTENAIRE ============ -->
+      <section class="frame" id="view-D" hidden>
+        <div class="bar" style="background:var(--partner-soft)"><div class="logo" style="background:var(--partner)">NS</div><span class="name" style="color:var(--partner)">Numérique Sud · Espace partenaire</span><span class="pill p-partner">À la marque du partenaire</span><span class="url">partenaires.numerique-sud.fr</span></div>
+        <div class="body">
+          <div class="tiles">
+            <div class="tile"><span class="l">Mes clients</span><span class="v">2</span></div>
+            <div class="tile"><span class="l">Montant dû à l'opérateur</span><span class="v">412 €</span></div>
+            <div class="tile"><span class="l">Commissions à recevoir</span><span class="v">96 €</span></div>
+            <div class="tile"><span class="l">Sous-partenaires</span><span class="v">1</span></div>
+          </div>
+
+          <div class="cols">
+            <div class="panel">
+              <h3>Demander un nouveau portail</h3>
+              <form id="req-form" class="cols" style="grid-template-columns:1fr">
+                <label class="field">Client<input id="rq-client" value="Mairie de Lavérune"></label>
+                <label class="field">Adresse souhaitée<input id="rq-domain" value="ia.laverune.fr"></label>
+                <label class="field">Forfait<select id="rq-plan"><option>Collectivité – usage inclus 5 M tokens</option><option>Essentiel – usage au réel</option><option>Étendu – clés du client</option></select></label>
+                <label class="field">Hébergement<select id="rq-host"><option>Opérateur, en France (par défaut)</option><option>Cloud souverain</option><option>Serveurs du client</option></select></label>
+                <button class="btn partner" type="submit">Envoyer la demande à l'opérateur</button>
+              </form>
+            </div>
+            <div class="panel">
+              <div class="spread"><h3>Options : Mairie de Saint-Aubin</h3><span class="pill p-ok">Appliqué immédiatement</span></div>
+              <div class="opts" id="p-tools"></div>
+              <div class="eyebrow">Tarification de ce client</div>
+              <div class="row">
+                <label class="field" style="flex:1">Mode<select id="p-mode"><option value="coef">Coefficient</option><option value="prix">Prix direct</option></select></label>
+                <label class="field" style="flex:1" id="p-val-l">Coefficient<input id="p-val" class="num" value="1,50"></label>
+              </div>
+              <p class="small muted" style="margin:0" id="p-margin"></p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Mes clients et sous-partenaires</h3>
+            <div class="scroll"><table>
+              <thead><tr><th>Nom</th><th>Type</th><th class="r">Tokens</th><th class="r">Valeur d'achat</th><th class="r">Valeur de revente</th><th>Détail</th></tr></thead>
+              <tbody>
+                <tr><td>Mairie de Saint-Aubin</td><td>Client</td><td class="r num">6,1 M</td><td class="r num">198 €</td><td class="r num">297 €</td><td><span class="pill p-info">Complet</span></td></tr>
+                <tr><td>Office de tourisme Garrigues</td><td>Client</td><td class="r num">2,4 M</td><td class="r num">78 €</td><td class="r num">109 €</td><td><span class="pill p-info">Complet</span></td></tr>
+                <tr><td>Cabinet Oxalis</td><td>Sous-partenaire</td><td class="r num">4,3 M</td><td class="r num">136 €</td><td class="r num">163 €</td><td><span class="pill p-warn">KPI consolidés seulement</span></td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ B. ADMIN CLIENT ============ -->
+      <section class="frame" id="view-B" hidden>
+        <div class="bar" style="background:var(--client-soft)"><div class="logo" style="background:var(--client)">SA</div><span class="name" style="color:var(--client)">Saint-Aubin · Administration</span><span class="pill p-info">Délégation : forfait Collectivité</span><span class="url">ia.saint-aubin.fr/admin</span></div>
+        <div class="admin">
+          <nav class="side" aria-label="Administration">
+            <button data-b="create" aria-current="true">Créer en parlant</button>
+            <button data-b="pol" aria-current="false">Politiques de chat</button>
+            <button data-b="auto" aria-current="false">Automatisations</button>
+            <button data-b="team" aria-current="false">Utilisateurs et équipes</button>
+            <button data-b="conso" aria-current="false">Consommation</button>
+            <button data-b="integr" aria-current="false">Intégrations</button>
+          </nav>
+          <div>
+            <div id="b-create" class="chat">
+              <div class="bar" style="border-bottom:1px solid var(--line)"><span class="small muted">Décrivez ce que vous voulez créer ou modifier. Le portail construit, vous testez, vous ajustez.</span></div>
+              <div class="msgs" id="b-msgs"></div>
+              <div>
+                <div class="chips" style="padding:0 16px 10px" id="b-chips"></div>
+                <form class="composer" id="b-form"><button type="button" class="mic" title="Dicter (simulation)" aria-label="Dicter">🎙</button><input id="b-input" placeholder="Ex. : crée un chat spécialisé pour les questions d'état civil" autocomplete="off"><button class="btn client" type="submit">Envoyer</button></form>
+              </div>
+            </div>
+            <div id="b-pol" class="body" hidden>
+              <div class="spread"><h3>Politiques de chat</h3><button class="btn" type="button" id="pol-voir">Voir comme…</button></div>
+              <form class="row" id="pol-talk"><input id="pol-talk-in" style="flex:1;min-width:200px;border:1px solid var(--line);border-radius:10px;padding:8px 11px;background:var(--surface)" placeholder="Décrivez la politique, ex. : l'équipe RH n'utilise que des modèles français et les documents RH"><button class="btn client" type="submit">Appliquer</button></form>
+              <div class="row"><span class="small muted">Suggestion :</span><button type="button" class="chip" id="pol-sugg">L'équipe RH n'utilise que des modèles français et les documents RH</button></div>
+              <div class="row">
+                <div class="seg" role="group" aria-label="Type de public"><button type="button" data-k="user" aria-pressed="false">Utilisateur</button><button type="button" data-k="profil" aria-pressed="false">Profil</button><button type="button" data-k="equipe" aria-pressed="true">Équipe</button><button type="button" data-k="chat" aria-pressed="false">Chat spécialisé</button></div>
+                <select id="pol-target" style="border:1px solid var(--line);border-radius:8px;padding:6px 9px;background:var(--surface)"></select>
+                <span class="small muted" id="pol-scope"></span>
+              </div>
+              <div class="blocks" id="pol-blocks"></div>
+              <div class="eff" id="pol-eff"></div>
+              <div class="panel">
+                <h3>Journal des refus</h3>
+                <div class="scroll"><table><thead><tr><th>Quand</th><th>Qui</th><th>Demande</th><th>Bloqué par</th></tr></thead><tbody id="refus"></tbody></table></div>
+              </div>
+            </div>
+            <div id="b-auto" class="body" hidden>
+              <div class="spread"><h3>Automatisations</h3><span class="small muted">Créées en parlant, relues sur un schéma, testées à blanc.</span></div>
+              <div class="cols" style="grid-template-columns:minmax(200px,260px) minmax(0,1fr)">
+                <div class="alist" id="a-list"></div>
+                <div class="panel" id="a-detail"></div>
+              </div>
+              <div class="panel"><h3>Historique des exécutions</h3><div class="scroll"><table><thead><tr><th>Date</th><th>Durée</th><th class="r">Coût</th><th>Résultat</th><th></th></tr></thead><tbody id="a-hist"></tbody></table></div></div>
+            </div>
+            <div id="b-team" class="body" hidden>
+              <div class="spread"><h3>Utilisateurs, profils, équipes</h3><button class="btn">Inviter</button></div>
+              <div class="scroll"><table>
+                <thead><tr><th>Nom</th><th>Profil</th><th>Équipes</th><th>Accès</th></tr></thead>
+                <tbody>
+                  <tr><td>Claire Vidal</td><td>Administratrice</td><td>Direction générale</td><td>Tout</td></tr>
+                  <tr><td>Karim Benali</td><td>Gestionnaire</td><td>Urbanisme</td><td>Chat spécialisé Urbanisme, documents PLU</td></tr>
+                  <tr><td>Sophie Marty</td><td>Utilisatrice</td><td>État civil, Accueil</td><td>Chat principal, chat spécialisé État civil</td></tr>
+                  <tr><td>Luc Ferrand</td><td>Lecteur</td><td>Élus</td><td>Chat, comptes rendus</td></tr>
+                </tbody></table></div>
+              <p class="small muted" style="margin:0">Astuce de la maquette : on peut aussi dire « ajoute le service RH comme équipe, avec accès au chat spécialisé RH » dans « Créer en parlant ».</p>
+            </div>
+            <div id="b-conso" class="body" hidden>
+              <h3>Consommation de septembre</h3>
+              <div class="tiles">
+                <div class="tile"><span class="l">Enveloppe du forfait</span><span class="v">5 M</span></div>
+                <div class="tile"><span class="l">Consommé</span><span class="v">3,4 M</span></div>
+                <div class="tile"><span class="l">Coût affiché</span><span class="v">297 €</span></div>
+              </div>
+              <div class="scroll"><table>
+                <thead><tr><th>Utilisateur</th><th>Équipe</th><th class="r">Tokens</th><th class="r">Coût</th></tr></thead>
+                <tbody>
+                  <tr><td>Karim Benali</td><td>Urbanisme</td><td class="r num">1,2 M</td><td class="r num">105 €</td></tr>
+                  <tr><td>Sophie Marty</td><td>État civil</td><td class="r num">0,9 M</td><td class="r num">79 €</td></tr>
+                  <tr><td>Claire Vidal</td><td>Direction</td><td class="r num">0,8 M</td><td class="r num">70 €</td></tr>
+                  <tr><td>Luc Ferrand</td><td>Élus</td><td class="r num">0,5 M</td><td class="r num">43 €</td></tr>
+                </tbody></table></div>
+              <p class="small muted" style="margin:0">Valeurs coefficient compris. Ni le coefficient ni le coût réel ne sont visibles ici. Dans le générateur et l'espace partenaire, les noms sont remplacés par un identifiant.</p>
+            </div>
+            <div id="b-integr" class="body" hidden>
+              <h3>Intégrations</h3>
+              <div class="opts">
+                <label class="opt"><input type="checkbox" checked disabled> Microsoft 365 <span class="pill p-ok">Connecté</span></label>
+                <label class="opt"><input type="checkbox" disabled> Google Workspace</label>
+                <label class="opt"><input type="checkbox" checked disabled> Pennylane (MCP) <span class="pill p-ok">Lecture seule</span></label>
+                <label class="opt"><input type="checkbox" disabled> Zoho (MCP)</label>
+                <label class="opt"><input type="checkbox" disabled> Notion (MCP)</label>
+                <label class="opt locked"><input type="checkbox" disabled> MCP personnalisé <span class="pill p-warn">Non inclus au forfait</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ C. UTILISATEUR ============ -->
+      <section class="frame" id="view-C" hidden>
+        <div class="bar" style="background:var(--client-soft)"><div class="logo" style="background:var(--client)">SA</div><span class="name" style="color:var(--client)">Saint-Aubin · IA de la mairie</span>
+          <div class="seg" role="group" aria-label="Espace"><button type="button" data-cv="chat" aria-pressed="true">Chat</button><button type="button" data-cv="cr" aria-pressed="false">Comptes rendus</button><button type="button" data-cv="fi" aria-pressed="false">Fiches</button></div>
+          <label class="field" id="c-model-l" style="margin-left:auto;display:flex;gap:6px;align-items:center">Modèle
+            <select id="c-model"></select></label>
+        </div>
+        <div class="body" id="c-cr" hidden></div>
+        <div class="body" id="c-fi" hidden></div>
+        <div class="chat" id="c-chatwrap">
+          <div class="banner" id="c-banner" hidden><span id="c-banner-t"></span><button type="button" class="btn" id="c-banner-x">Revenir à la vue de l'admin</button></div>
+          <div class="bar"><div class="seg" role="group" aria-label="Chat" id="c-chats"></div><button type="button" class="btn" id="c-mypol" style="margin-left:auto">Ma politique</button></div>
+          <div class="eff" id="c-pol" hidden style="margin:12px 16px 0"></div>
+          <div class="msgs" id="c-msgs"></div>
+          <div>
+            <div class="chips" style="padding:0 16px 10px" id="c-chips"></div>
+            <form class="composer" id="c-form"><button type="button" class="mic" aria-label="Dicter" title="Dicter (simulation)">🎙</button><input id="c-input" placeholder="Posez votre question" autocomplete="off"><button class="btn client" type="submit">Envoyer</button></form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MOBILE ============ -->
+      <section class="frame" id="view-M" hidden>
+        <div class="bar"><span class="name">Application mobile</span><span class="pill p-info">Android et iPhone</span><span class="url">Store : à la marque de l'opérateur</span></div>
+        <div class="phone-wrap">
+          <div class="phone"><div class="screen" id="ph"></div></div>
+          <div class="side-note">
+            <h3>À essayer</h3>
+            <ul style="margin:0;padding-left:18px;display:grid;gap:6px">
+              <li>Déverrouiller avec l'empreinte, puis se connecter par QR code : l'app prend les couleurs de Saint-Aubin.</li>
+              <li><b>Enregistrer</b> : rappel du consentement, chronomètre, marqueurs, mode hors connexion, choix du traitement.</li>
+              <li><b>Chat</b> : dicter, écouter la réponse, photographier une facture.</li>
+              <li><b>Valider</b> : approuver, modifier ou refuser une relance préparée par une automatisation.</li>
+            </ul>
+            <label class="tg" style="max-width:320px"><span>Simuler : pas de réseau</span><input class="sw" type="checkbox" id="ph-off"></label>
+            <button class="btn" type="button" id="ph-reset" style="justify-self:start">Recommencer depuis l'installation</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="qs" aria-label="Questions pour affiner">
+      <div class="qhead">
+        <div class="eyebrow">Questions pour affiner</div>
+        <h2 id="q-title">Générateur</h2>
+        <div class="progress" aria-hidden="true"><i id="q-bar"></i></div>
+        <span class="small muted" id="q-count"></span>
+        <span class="small" id="q-store"></span>
+      </div>
+      <div id="q-list" style="display:grid;gap:10px"></div>
+    </aside>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const fmt=n=>n.toLocaleString('fr-FR',{maximumFractionDigits:2});
+function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
+
+/* ---------- roles ---------- */
+const titles={A:'Générateur',D:'Espace partenaire',B:'Portail admin',C:'Portail utilisateur',M:'Application mobile'};
+function show(r){
+  document.querySelectorAll('.role').forEach(b=>b.setAttribute('aria-selected',b.dataset.role===r));
+  ['A','D','B','C','M'].forEach(k=>$('#view-'+k).hidden=k!==r);
+  $('#q-title').textContent=titles[r];renderQs(r);
+  try{localStorage.setItem('role',r)}catch(e){}
+}
+document.querySelectorAll('.role').forEach(b=>b.onclick=()=>show(b.dataset.role));
+
+/* ---------- A ---------- */
+const portals=[
+ {c:'Mairie de Saint-Aubin',by:'Numérique Sud',f:'Collectivité',h:'Opérateur, France',t:'6,1 M',cost:'152 €',s:['ok','En ligne']},
+ {c:"Office de tourisme Garrigues",by:'Numérique Sud',f:'Essentiel',h:'Opérateur, France',t:'2,4 M',cost:'60 €',s:['ok','En ligne']},
+ {c:"CC du Val d'Arre",by:'Cabinet Oxalis',f:'Collectivité',h:'Cloud souverain',t:'4,3 M',cost:'105 €',s:['warn','Mise à jour en attente']},
+ {c:'Transports Morel SAS',by:'Atelier Data Ouest',f:'Étendu',h:'Serveurs du client',t:'21,7 M',cost:'540 €',s:['ok','En ligne']},
+ {c:"Cabinet d'avocats Rivière",by:'Direct',f:'Étendu',h:'Opérateur, France',t:'9,8 M',cost:'245 €',s:['ok','En ligne']},
+ {c:'SIVOM Haute-Vallée',by:'Direct',f:'Essentiel',h:'Opérateur, France',t:'3,9 M',cost:'110 €',s:['warn','Enveloppe à 92 %']},
+];
+function renderPortals(){
+  const tb=$('#portals tbody');tb.innerHTML='';
+  portals.forEach((p,i)=>{const tr=document.createElement('tr');tr.className='click'+(i===0?' sel':'');tr.tabIndex=0;
+    tr.innerHTML=`<td>${p.c}</td><td>${p.by==='Direct'?'<span class="pill p-info">Direct</span>':'<span class="pill p-partner">'+p.by+'</span>'}</td><td>${p.f}</td><td>${p.h}</td><td class="r num">${p.t}</td><td class="r num">${p.cost}</td><td><span class="pill p-${p.s[0]}">${p.s[1]}</span></td>`;
+    tr.onclick=tr.onkeydown=(e)=>{if(e.type==='keydown'&&e.key!=='Enter')return;tb.querySelectorAll('tr').forEach(x=>x.classList.remove('sel'));tr.classList.add('sel');$('#d-title').textContent=p.c;$('#d-by').textContent=p.by==='Direct'?'client direct':'via '+p.by};
+    tb.appendChild(tr)});
+}
+const tools=[['Chatbot',true,false],['Chats spécialisés',true,false],['Ensembles de sources',true,false],['Automatisations',true,false],['Comptes rendus',true,false],['Chatbot public',false,true],['Bot Teams',false,true],['Mémoire IA',true,false]];
+function renderTools(){
+  $('#d-tools').innerHTML=tools.map(([n,on,lock])=>`<label class="opt ${lock?'locked':''}"><input type="checkbox" ${on?'checked':''} ${lock?'disabled':''}> ${n}</label>`).join('');
+  $('#p-tools').innerHTML=tools.map(([n,on,lock],i)=>`<label class="opt"><input type="checkbox" data-i="${i}" ${on&&!lock?'checked':''}> ${n}</label>`).join('');
+  $('#p-tools').querySelectorAll('input').forEach(inp=>inp.onchange=()=>{const t=tools[+inp.dataset.i];t[2]=!inp.checked;t[1]=inp.checked;renderTools();toast(`« ${t[0]} » ${inp.checked?'ouvert':'fermé'} sur le portail de Saint-Aubin`)});
+}
+$('#d-coefs').innerHTML=[['Par défaut','1,30'],['Modèle hébergé en France','1,30'],['Modèle le plus puissant','1,45'],['Modèle local','1,10']].map(([m,c])=>`<label class="field">${m}<input class="num" value="${c}"></label>`).join('');
+let mode='coef';
+function renderChain(){
+  const real=100,op=130,sub=mode==='coef'?156:150,cli=sub*1.25;
+  const steps=[['Coût réel','',real],['Part opérateur','× 1,30 (vous → Numérique Sud)',op],['Payé par Oxalis',mode==='coef'?'× 1,20 fixé par Numérique Sud':'prix direct fixé par Numérique Sud',sub],['Vu par le client','× 1,25 fixé par Oxalis',cli]];
+  $('#chain').innerHTML=steps.map((s,i)=>`${i?'<span class="arrow">→</span>':''}<div class="step"><span class="who">${s[0]}</span><span class="amt">${fmt(s[2])} €</span><span class="co">${s[1]||'&nbsp;'}</span></div>`).join('');
+  $('#chain-note').textContent=`Vous calculez ${fmt(sub)} € dus par Oxalis, gardez 130 € et reversez ${fmt(sub-op)} € de commission à Numérique Sud. Oxalis garde ${fmt(cli-sub)} €.`;
+  $('#m-coef').setAttribute('aria-pressed',mode==='coef');$('#m-prix').setAttribute('aria-pressed',mode==='prix');
+}
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;renderChain()});
+
+/* ---------- D ---------- */
+$('#req-form').onsubmit=e=>{e.preventDefault();const c=$('#rq-client').value.trim()||'Nouveau client';
+  portals.push({c,by:'Numérique Sud',f:$('#rq-plan').value.split(' –')[0],h:$('#rq-host').value.split(',')[0].replace(' (par défaut)',''),t:'—',cost:'—',s:['info','Demande reçue']});
+  renderPortals();$('#req-count').textContent='2';toast(`Demande envoyée : ${c}. Elle apparaît dans le générateur de l'opérateur.`)};
+function margin(){const m=$('#p-mode').value;const raw=$('#p-val').value.replace(',','.');const v=parseFloat(raw);
+  $('#p-val-l').firstChild.textContent=m==='coef'?'Coefficient':'Prix pour 1 M tokens (€)';
+  const buy=32.5; // valeur d'achat pour 1 M tokens, coefficients amont inclus (fictif)
+  if(isNaN(v)){$('#p-margin').textContent='Saisissez une valeur.';return}
+  const sell=m==='coef'?buy*v:v;const mg=sell-buy;
+  $('#p-margin').innerHTML=`Pour 1 M tokens : achat <span class="num">${fmt(buy)} €</span>, revente <span class="num">${fmt(sell)} €</span>, marge <span class="num">${fmt(mg)} €</span>${mg<0?' <span class="pill p-warn">Marge négative</span>':''}. Le client ne voit jamais ces chiffres.`}
+$('#p-mode').onchange=()=>{$('#p-val').value=$('#p-mode').value==='coef'?'1,50':'45';margin()};$('#p-val').oninput=margin;
+
+/* ---------- B : créer en parlant ---------- */
+const bMsgs=$('#b-msgs');
+function bubble(box,who,html){const d=document.createElement('div');d.className='msg '+who;d.innerHTML=html;box.appendChild(d);box.scrollTop=box.scrollHeight;return d}
+const scripts={
+ urba:{ask:"Crée un chat spécialisé pour répondre aux questions d'urbanisme des habitants",
+  steps:[
+   {ai:"D'accord. Deux questions avant de le construire :<br>1. Sur quels documents doit-il s'appuyer ?",quick:['Le PLU et le règlement de voirie','Tous les documents du service Urbanisme']},
+   {ai:"2. Qui pourra l'utiliser ?",quick:["Les agents de l'accueil et de l'urbanisme",'Tout le monde, y compris sur le site public']},
+   {final:{t:'Chat spécialisé « Urbanisme »',rows:[['Rôle',"Répond aux questions d'urbanisme en citant le PLU"],['Documents','PLU 2023, règlement de voirie (2 fichiers)'],['Utilisateurs','Équipes Accueil et Urbanisme'],['Modèle','Choix automatique'],['Garde-fou',"Renvoie vers un agent pour toute demande de permis"]]}}]},
+ courrier:{ask:"Chaque lundi, résume les courriers arrivés et envoie le résumé à la direction",
+  steps:[
+   {ai:"Où arrivent les courriers : dans une boîte e-mail, ou dans un dossier SharePoint ?",quick:['Boîte courrier@saint-aubin.fr','Dossier SharePoint « Courrier arrivé »']},
+   {ai:"Faut-il que quelqu'un valide le résumé avant l'envoi ?",quick:['Oui, Claire Vidal valide','Non, envoi direct']},
+   {final:{t:'Automatisation « Revue du courrier »',rows:[['Déclencheur','Chaque lundi à 8 h'],['Source','Courriers de la semaine'],['Traitement','Résumé classé par service, urgences en tête'],['Validation','Claire Vidal, avant envoi'],['Envoi','E-mail à la direction générale']]}}]},
+ rh:{ask:"Ajoute le service RH comme équipe, avec accès au chat spécialisé RH",
+  steps:[
+   {ai:"Qui fait partie du service RH ?",quick:['Nadia Roche et Paul Garcia','Je vous envoie la liste']},
+   {final:{t:'Équipe « Ressources humaines »',rows:[['Membres','Nadia Roche, Paul Garcia'],['Accès','Chat principal, chat spécialisé RH, documents RH'],['Budget','Aucun plafond (défaut du portail)']]}}]},
+};
+let cur=null,stepI=0;
+function bChips(list){$('#b-chips').innerHTML='';list.forEach(t=>{const b=document.createElement('button');b.className='chip';b.type='button';b.textContent=t;b.onclick=()=>bSend(t);$('#b-chips').appendChild(b)})}
+function bStart(){bMsgs.innerHTML='';cur=null;bubble(bMsgs,'ai',"Bonjour Claire. Dites-moi ce que vous voulez mettre en place pour la mairie : un chat spécialisé, une automatisation, un formulaire, une équipe… Je pose les questions utiles et je construis.");bChips(Object.values(scripts).map(s=>s.ask))}
+function bNext(){const st=cur.steps[stepI];
+  if(st.final){const f=st.final;const d=bubble(bMsgs,'ai',"C'est prêt. Voici ce que j'ai construit :");
+    const card=document.createElement('div');card.className='card';card.innerHTML=`<b>${f.t}</b><dl>${f.rows.map(r=>`<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join('')}</dl><div class="row"><button class="btn" type="button" data-a="test">Tester</button><button class="btn" type="button" data-a="adj">Ajuster</button><button class="btn client" type="button" data-a="pub">Publier</button></div>`;d.appendChild(card);
+    card.querySelector('[data-a=test]').onclick=()=>toast('Aperçu ouvert (simulation)');
+    card.querySelector('[data-a=adj]').onclick=()=>{bChips(['Plus court','Ajoute le cadastre','Réserve-le à l\'équipe Urbanisme']);$('#b-input').focus()};
+    card.querySelector('[data-a=pub]').onclick=()=>{toast(`« ${f.t} » publié. Version 1 enregistrée.`);bChips(['Recommencer avec un autre exemple'])};
+    bChips([]);cur=null;return}
+  bubble(bMsgs,'ai',st.ai);bChips(st.quick)}
+function bSend(t){if(!t.trim())return;
+  if(t==='Recommencer avec un autre exemple'){bStart();return}
+  bubble(bMsgs,'me',t.replace(/</g,'&lt;'));
+  const match=Object.values(scripts).find(s=>s.ask===t);
+  if(match){cur=match;stepI=0;setTimeout(bNext,350);return}
+  if(cur){stepI++;setTimeout(bNext,350);return}
+  setTimeout(()=>{bubble(bMsgs,'ai',`Compris. Dans le vrai portail, je poserais ici mes questions de clarification pour « ${t.replace(/</g,'&lt;').slice(0,90)} », puis je construirais l'objet. Dans cette maquette, essayez l'un des exemples proposés.`);bChips(Object.values(scripts).map(s=>s.ask))},350)}
+$('#b-form').onsubmit=e=>{e.preventDefault();const v=$('#b-input').value;$('#b-input').value='';bSend(v)};
+document.querySelectorAll('.side button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.side button').forEach(x=>x.setAttribute('aria-current',x===b));['create','pol','auto','team','conso','integr'].forEach(k=>$('#b-'+k).hidden=k!==b.dataset.b)});
+
+/* ---------- Politiques de chat ---------- */
+const SOURCES=['Documents État civil','Documents Urbanisme (PLU)','Documents RH','Délibérations et comptes rendus','SharePoint de la mairie','Pennylane (factures)'];
+const MODELS=['Modèle hébergé en France','Modèle le plus puissant','Modèle rapide','Modèle local'];
+const ACTIONS={email:'Envoyer un e-mail',zoho:'Créer une fiche dans Zoho',depot:'Déposer un document',chaine:'Lancer un traitement enchaîné'};
+const LIBS={model:'Choisir son modèle',docs:'Ajouter ses documents',cons:'Ajouter ses consignes',voir:'Voir sa politique'};
+const ALL_A=()=>({email:'oui',zoho:'oui',depot:'oui',chaine:'oui'});
+const ALL_L=()=>({model:true,docs:true,cons:true,voir:true});
+function pol(o){return Object.assign({sources:[...SOURCES],strict:false,web:true,models:[...MODELS],def:MODELS[0],sens:true,cap:100,cons:'',actions:ALL_A(),chains:[],lib:ALL_L()},o)}
+const POL={
+ 'profil:Administratrice':pol({cap:150}),
+ 'profil:Gestionnaire':pol({sources:SOURCES.filter(x=>x!=='Documents RH'),cap:80,actions:{email:'oui',zoho:'oui',depot:'oui',chaine:'validation'}}),
+ 'profil:Utilisatrice':pol({sources:SOURCES.filter(x=>!['Documents RH','Pennylane (factures)'].includes(x)),models:['Modèle hébergé en France','Modèle rapide','Modèle local'],cap:40,cons:'Vouvoyer les usagers. Rester factuel.',actions:{email:'validation',zoho:'non',depot:'oui',chaine:'non'}}),
+ 'profil:Lecteur':pol({sources:['Délibérations et comptes rendus'],models:['Modèle rapide'],def:'Modèle rapide',cap:10,actions:{email:'non',zoho:'non',depot:'non',chaine:'non'},lib:{model:false,docs:false,cons:true,voir:true}}),
+ 'equipe:État civil':pol({sources:['Documents État civil','Délibérations et comptes rendus','SharePoint de la mairie'],strict:true,models:['Modèle hébergé en France','Modèle rapide','Modèle local'],cap:60,cons:"Toujours citer l'article du Code civil concerné."}),
+ 'equipe:Accueil':pol({sources:['Documents État civil','Documents Urbanisme (PLU)','Délibérations et comptes rendus','SharePoint de la mairie'],web:false,cap:30,cons:'Réponses courtes, adaptées au guichet.'}),
+ 'equipe:Urbanisme':pol({sources:['Documents Urbanisme (PLU)','Délibérations et comptes rendus','SharePoint de la mairie'],cap:80,chains:['Pré-instruire une déclaration préalable']}),
+ 'equipe:Ressources humaines':pol({sources:['Documents RH','SharePoint de la mairie'],strict:true,web:false,models:['Modèle hébergé en France','Modèle local'],cap:50}),
+ 'user:Sophie Marty':pol({}),
+ 'user:Karim Benali':pol({}),
+ 'user:Nadia Roche':pol({}),
+ 'chat:État civil':pol({sources:['Documents État civil','SharePoint de la mairie'],strict:true,models:['Modèle hébergé en France','Modèle local'],cons:"Toujours citer l'article du Code civil concerné."}),
+ 'chat:Urbanisme':pol({sources:['Documents Urbanisme (PLU)','Délibérations et comptes rendus'],strict:true,chains:['Pré-instruire une déclaration préalable']}),
+};
+const PEOPLE={
+ 'Sophie Marty':{profil:'Utilisatrice',equipes:['État civil','Accueil'],chats:['État civil']},
+ 'Karim Benali':{profil:'Gestionnaire',equipes:['Urbanisme'],chats:['Urbanisme']},
+ 'Nadia Roche':{profil:'Utilisatrice',equipes:['Ressources humaines'],chats:[]},
+};
+const label=k=>{const [t,n]=k.split(':');return ({profil:'Profil',equipe:'Équipe',user:'Individuel',chat:'Chat spécialisé'})[t]+' '+n};
+const RANK={oui:0,validation:1,non:2};
+function effective(person,chat){
+  const p=PEOPLE[person];const keys=['profil:'+p.profil,...p.equipes.map(e=>'equipe:'+e),'user:'+person];if(chat)keys.push('chat:'+chat);
+  const ps=keys.map(k=>[k,POL[k]]);const why={};
+  let src=[...SOURCES];ps.forEach(([k,x])=>{src=src.filter(s=>{if(!x.sources.includes(s)){why['src:'+s]=why['src:'+s]||label(k);return false}return true})});
+  // priorité : celle de la politique la plus spécifique qui définit un ordre (chat > individuel > équipes > profil)
+  const order=[...ps].reverse()[0][1].sources;src.sort((a,b)=>(order.indexOf(a)+99*(order.indexOf(a)<0))-(order.indexOf(b)+99*(order.indexOf(b)<0)));
+  let models=[...MODELS];ps.forEach(([k,x])=>{models=models.filter(m=>{if(!x.models.includes(m)){why['mod:'+m]=why['mod:'+m]||label(k);return false}return true})});
+  const strictBy=ps.filter(([k,x])=>x.strict).map(([k])=>label(k));const webBy=ps.filter(([k,x])=>!x.web).map(([k])=>label(k));
+  let cap=Infinity,capBy='';ps.forEach(([k,x])=>{if(x.cap<cap){cap=x.cap;capBy=label(k)}});
+  const actions={};Object.keys(ACTIONS).forEach(a=>{let v='oui',by='';ps.forEach(([k,x])=>{if(RANK[x.actions[a]]>RANK[v]){v=x.actions[a];by=label(k)}});actions[a]={v,by}});
+  const lib={};Object.keys(LIBS).forEach(l=>{const by=ps.find(([k,x])=>!x.lib[l]);lib[l]={v:!by,by:by?label(by[0]):''}});
+  const defs=[...ps].reverse().map(([k,x])=>x.def).find(d=>models.includes(d))||models[0]||'Aucun';
+  return {keys,src,why,models,def:defs,strict:strictBy.length>0,strictBy,web:webBy.length===0,webBy,sens:ps.some(([k,x])=>x.sens),cap,capBy,cons:ps.map(([k,x])=>x.cons).filter(Boolean),actions,lib,chains:[...new Set(ps.flatMap(([k,x])=>x.chains))]};
+}
+function effHTML(person,chat){const e=effective(person,chat);
+  const excl=SOURCES.filter(s=>!e.src.includes(s)).map(s=>`${s} <span class="why">(retiré par ${e.why['src:'+s]})</span>`);
+  return `<b>Politique effective : ${person}${chat?' · chat spécialisé '+chat:' · chat principal'}</b>
+  <span class="why">Combine : ${e.keys.map(label).join(' + ')}. La plus restrictive l'emporte.</span>
+  <div><b>Sources</b>, par priorité : ${e.src.join(' › ')||'aucune'}${excl.length?`<br><span class="why">Exclues : ${excl.join(' ; ')}</span>`:''}</div>
+  <div><b>Mode strict</b> : ${e.strict?'oui <span class="why">(imposé par '+e.strictBy.join(', ')+')</span>':'non'} · <b>Internet</b> : ${e.web?'autorisé':'interdit <span class="why">('+e.webBy.join(', ')+')</span>'}</div>
+  <div><b>Modèles</b> : ${e.models.join(', ')||'aucun'} · par défaut : ${e.def} · routage des données sensibles : ${e.sens?'actif':'inactif'}</div>
+  <div><b>Plafond</b> : <span class="num">${e.cap} €</span> / mois <span class="why">(${e.capBy})</span></div>
+  <div><b>Actions</b> : ${Object.entries(e.actions).map(([a,x])=>`${ACTIONS[a]} : ${x.v==='oui'?'oui':x.v==='validation'?'avec validation':'non'}${x.by?' <span class="why">('+x.by+')</span>':''}`).join(' · ')}</div>
+  ${e.chains.length?`<div><b>Traitements enchaînés</b> : ${e.chains.join(', ')}</div>`:''}
+  ${e.cons.length?`<div><b>Consignes</b> : ${e.cons.join(' ')}</div>`:''}
+  <div><b>Libertés</b> : ${Object.entries(e.lib).map(([l,x])=>`${LIBS[l]} ${x.v?'✓':'✗ <span class="why">('+x.by+')</span>'}`).join(' · ')}</div>`}
+
+let polKind='equipe',polKey='equipe:État civil',effPerson='Sophie Marty';
+function polTargets(){const sel=$('#pol-target');const ks=Object.keys(POL).filter(k=>k.startsWith(polKind+':'));if(!ks.includes(polKey))polKey=ks[0];
+  sel.innerHTML=ks.map(k=>`<option value="${k}" ${k===polKey?'selected':''}>${k.split(':')[1]}</option>`).join('');
+  document.querySelectorAll('#b-pol .seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===polKind));
+  const n=polKey.split(':')[1];const who=Object.entries(PEOPLE).filter(([p,x])=>(polKind==='user'&&p===n)||(polKind==='profil'&&x.profil===n)||(polKind==='equipe'&&x.equipes.includes(n))||(polKind==='chat'&&x.chats.includes(n))).map(([p])=>p);
+  $('#pol-scope').textContent=who.length?`Concerne : ${who.join(', ')}`:'Personne dans l\'exemple';
+  if(who.length&&!who.includes(effPerson))effPerson=who[0];renderPol()}
+function sw(id,on,txt){return `<label class="tg" for="${id}"><span>${txt}</span><input class="sw" type="checkbox" id="${id}" ${on?'checked':''}></label>`}
+function renderPol(){const P=POL[polKey];
+  const prio=[...P.sources,...SOURCES.filter(s=>!P.sources.includes(s))];
+  $('#pol-blocks').innerHTML=`
+  <div class="block"><h4>Sources <span class="small muted">où le chat cherche</span></h4>
+    <div class="prio">${prio.map((s,i)=>`<div><input type="checkbox" data-src="${s}" ${P.sources.includes(s)?'checked':''} aria-label="${s}"><span>${P.sources.includes(s)?(P.sources.indexOf(s)+1)+'. ':''}${s}</span>${P.sources.includes(s)&&i>0?`<button type="button" data-up="${s}" aria-label="Monter">↑</button>`:''}</div>`).join('')}</div>
+    ${sw('p-strict',P.strict,'Mode strict : uniquement ces sources')}${sw('p-web',P.web,'Recherche sur internet')}</div>
+  <div class="block"><h4>Modèles <span class="small muted">quelle IA répond</span></h4>
+    <div class="opts" style="grid-template-columns:1fr">${MODELS.map(m=>`<label class="opt"><input type="checkbox" data-mod="${m}" ${P.models.includes(m)?'checked':''}> ${m}</label>`).join('')}</div>
+    <label class="field">Modèle par défaut<select id="p-def">${P.models.map(m=>`<option ${m===P.def?'selected':''}>${m}</option>`).join('')}</select></label>
+    ${sw('p-sens',P.sens,'Données sensibles → modèle français ou local')}
+    <label class="field">Plafond par personne (€ / mois)<input id="p-cap" class="num" value="${P.cap}"></label></div>
+  <div class="block"><h4>Processus <span class="small muted">comment il travaille</span></h4>
+    <label class="field">Consignes permanentes<textarea class="cons" id="p-cons">${P.cons}</textarea></label>
+    ${Object.entries(ACTIONS).map(([a,t])=>`<label class="field">${t}<select data-act="${a}"><option value="oui" ${P.actions[a]==='oui'?'selected':''}>Autorisé</option><option value="validation" ${P.actions[a]==='validation'?'selected':''}>Avec validation d'un responsable</option><option value="non" ${P.actions[a]==='non'?'selected':''}>Interdit</option></select></label>`).join('')}
+    <div class="small"><b>Traitements enchaînés :</b> ${P.chains.join(', ')||'aucun'}</div></div>
+  <div class="block"><h4>Libertés de l'utilisateur</h4>${Object.entries(LIBS).map(([l,t])=>sw('p-lib-'+l,P.lib[l],t)).join('')}</div>`;
+  const B=$('#pol-blocks');
+  B.querySelectorAll('[data-src]').forEach(i=>i.onchange=()=>{const s=i.dataset.src;P.sources=i.checked?[...P.sources,s]:P.sources.filter(x=>x!==s);renderPol()});
+  B.querySelectorAll('[data-up]').forEach(bt=>bt.onclick=()=>{const s=bt.dataset.up;const i=P.sources.indexOf(s);if(i>0){[P.sources[i-1],P.sources[i]]=[P.sources[i],P.sources[i-1]]}renderPol()});
+  B.querySelectorAll('[data-mod]').forEach(i=>i.onchange=()=>{const m=i.dataset.mod;P.models=i.checked?[...P.models,m]:P.models.filter(x=>x!==m);if(!P.models.includes(P.def))P.def=P.models[0]||'';renderPol()});
+  B.querySelectorAll('[data-act]').forEach(sl=>sl.onchange=()=>{P.actions[sl.dataset.act]=sl.value;renderEff()});
+  $('#p-strict').onchange=e=>{P.strict=e.target.checked;renderEff()};$('#p-web').onchange=e=>{P.web=e.target.checked;renderEff()};$('#p-sens').onchange=e=>{P.sens=e.target.checked;renderEff()};
+  $('#p-def').onchange=e=>{P.def=e.target.value;renderEff()};$('#p-cap').oninput=e=>{const v=parseFloat(e.target.value);if(!isNaN(v)){P.cap=v;renderEff()}};$('#p-cons').oninput=e=>{P.cons=e.target.value;renderEff()};
+  Object.keys(LIBS).forEach(l=>$('#p-lib-'+l).onchange=e=>{P.lib[l]=e.target.checked;renderEff()});
+  renderEff()}
+function renderEff(){$('#pol-eff').innerHTML=`<div class="row"><span class="small">Effet pour :</span><select id="eff-p" style="border:1px solid var(--line);border-radius:8px;padding:4px 8px;background:var(--surface)">${Object.keys(PEOPLE).map(p=>`<option ${p===effPerson?'selected':''}>${p}</option>`).join('')}</select></div>`+effHTML(effPerson,polKind==='chat'&&PEOPLE[effPerson].chats.includes(polKey.split(':')[1])?polKey.split(':')[1]:null);
+  $('#eff-p').onchange=e=>{effPerson=e.target.value;renderEff()}}
+document.querySelectorAll('#b-pol .seg button').forEach(b=>b.onclick=()=>{polKind=b.dataset.k;polKey='';polTargets()});
+$('#pol-target').onchange=e=>{polKey=e.target.value;polTargets()};
+function applyTalk(t){if(/rh/i.test(t)&&/fran/i.test(t)){polKind='equipe';polKey='equipe:Ressources humaines';const P=POL[polKey];P.models=['Modèle hébergé en France','Modèle local'];P.def='Modèle hébergé en France';P.sources=['Documents RH'];P.strict=true;polTargets();toast("Politique « Équipe Ressources humaines » mise à jour : modèles français et local, documents RH seulement. Relisez la fiche.")}
+  else toast("Dans le vrai portail, la phrase serait traduite en réglages. Ici, essayez la suggestion.")}
+$('#pol-talk').onsubmit=e=>{e.preventDefault();applyTalk($('#pol-talk-in').value);$('#pol-talk-in').value=''};
+$('#pol-sugg').onclick=()=>applyTalk($('#pol-sugg').textContent);
+const REFUS=[{q:'Hier 16:42',u:'Nadia Roche',d:'Rechercher sur internet la grille indiciaire 2026',b:'Équipe Ressources humaines : internet interdit'},{q:'Hier 10:05',u:'Luc Ferrand',d:'Utiliser le modèle le plus puissant',b:'Profil Lecteur : modèle non autorisé'}];
+function renderRefus(){$('#refus').innerHTML=REFUS.map(r=>`<tr><td class="num">${r.q}</td><td>${r.u}</td><td>${r.d}</td><td><span class="pill p-warn">${r.b}</span></td></tr>`).join('')}
+
+
+/* ---------- Automatisations ---------- */
+const AUTOS=[
+ {id:'courrier',n:'Revue du courrier',by:'Claire Vidal',from:'Portail',on:true,ver:3,
+  steps:[{t:'start',k:'Lancement',x:'Chaque lundi à 8 h'},{k:'Étape',x:'Lire les courriers de la semaine (SharePoint « Courrier arrivé »)'},{k:'Étape',x:'Résumer et classer par service, urgences en tête'},{t:'val',k:'Validation',x:'Claire Vidal · délai 24 h · relance · puis DGS'},{k:'Résultat',x:'E-mail à la direction générale'},{t:'call',k:'Appelle',x:'Automatisation « Tableau des échéances »'}],
+  pol:'Sources : SharePoint · Modèle hébergé en France (secours : modèle local) · Actions : e-mail avec validation',lim:'Budget 5 € / exécution, 20 € / mois · 1 fois par jour max · fin : aucune',
+  hist:[['Lun. 22/09 08:00','2 min 10','0,42 €','ok','Réussie · validée par Claire Vidal'],['Lun. 15/09 08:00','3 min 02','0,51 €','warn','Réussie avec modèle de secours (modèle prévu indisponible)'],['Lun. 08/09 08:00','—','0,12 €','bad','Échouée · validation expirée, DGS absent']]},
+ {id:'cr',n:'Compte rendu de conseil municipal',by:'Modèle opérateur',from:'Catalogue',on:true,ver:1,
+  steps:[{t:'start',k:'Lancement',x:'Audio de réunion déposé dans « Conseils »'},{k:'Étape',x:'Transcrire l\'audio'},{k:'Étape',x:'Rédiger le compte rendu au format « conseil municipal »'},{k:'Étape',x:'Extraire le tableau des délibérations (vote, rapporteur)'},{t:'val',k:'Validation',x:'Secrétariat général · délai 72 h'},{k:'Résultat',x:'Document déposé dans « Délibérations » + message dans le chat des élus'}],
+  pol:'Sources : audio fourni · Modèle hébergé en France · Actions : dépôt de document',lim:'Budget 8 € / exécution · 1 fois par jour max · fin : aucune',
+  hist:[['Jeu. 18/09 23:10','6 min 40','1,85 €','ok','Réussie · validée par le secrétariat général']]},
+ {id:'fact',n:'Relance des factures impayées',by:'Karim Benali',from:'Personnelle',on:false,ver:1,
+  steps:[{t:'start',k:'Lancement',x:'Nouvelle facture échue dans Pennylane'},{k:'Étape',x:'Préparer une relance polie'},{t:'val',k:'Validation',x:'Karim Benali · délai 48 h'},{k:'Résultat',x:'E-mail au fournisseur + note dans Zoho'}],
+  pol:'Sources : Pennylane (lecture) · Modèle rapide · Actions : e-mail et fiche Zoho avec validation',lim:'Budget 1 € / exécution · 10 fois par jour max · fin : 31/12/2026',hist:[]},
+];
+let curA='courrier';
+function renderAutos(){
+  $('#a-list').innerHTML=AUTOS.map(a=>`<button type="button" class="aitem" data-a="${a.id}" aria-current="${a.id===curA}"><span><b>${a.n}</b><br><span class="small muted">${a.from} · ${a.by}</span></span><span class="pill ${a.on?'p-ok':'p-info'}">${a.on?'Active':'Inactive'}</span></button>`).join('');
+  $('#a-list').querySelectorAll('.aitem').forEach(b=>b.onclick=()=>{curA=b.dataset.a;renderAutos()});
+  const a=AUTOS.find(x=>x.id===curA);
+  $('#a-detail').innerHTML=`<div class="spread"><h3>${a.n}</h3><span class="small muted">Version ${a.ver}</span></div>
+   <div class="flow">${a.steps.map((st,i)=>`${i?'<span class="farrow">→</span>':''}<div class="fbox ${st.t||''}"><span class="k">${st.k}</span><span class="small">${st.x}</span></div>`).join('')}</div>
+   <form class="row" id="a-talk"><input id="a-talk-in" style="flex:1;min-width:180px;border:1px solid var(--line);border-radius:10px;padding:8px 11px;background:var(--surface)" placeholder="Modifier en parlant, ex. : envoie aussi le résumé dans Teams"><button class="btn client" type="submit">Modifier</button></form>
+   <div class="small"><b>Sa politique :</b> ${a.pol}<br><b>Limites :</b> ${a.lim}</div>
+   <div class="row"><button type="button" class="btn" id="a-dry">Essai à blanc</button><button type="button" class="btn ${a.on?'':'client'}" id="a-on">${a.on?'Désactiver':'Activer'}</button><button type="button" class="btn" id="a-ver">Versions</button></div>
+   <div id="a-dry-out"></div>`;
+  $('#a-dry').onclick=()=>{$('#a-dry-out').innerHTML=`<div class="dry"><b>Essai à blanc : rien n'a été envoyé ni modifié.</b>${a.steps.slice(1).map(st=>`<span>✓ ${st.k} : ${st.x}${st.t==='val'?' <i>(demande de validation simulée)</i>':''}</span>`).join('')}<span class="small muted">Coût estimé : 0,40 €. Résultat simulé : « 14 courriers, dont 3 urgents (voirie, école, état civil) ».</span></div>`};
+  $('#a-on').onclick=()=>{a.on=!a.on;toast(`« ${a.n} » ${a.on?'activée':'désactivée'}`);renderAutos()};
+  $('#a-ver').onclick=()=>toast(`Versions : ${Array.from({length:a.ver},(_,i)=>'v'+(a.ver-i)).join(', ')}. Retour arrière possible.`);
+  $('#a-talk').onsubmit=e=>{e.preventDefault();const v=$('#a-talk-in').value.trim();if(!v)return;
+    if(/teams/i.test(v)){a.steps.push({t:'new',k:'Résultat',x:'Message dans le canal Teams « Direction »'});a.ver++;toast('Étape ajoutée. Nouvelle version créée, à tester à blanc avant de l\'appliquer.');renderAutos()}
+    else toast("Dans le vrai portail, je poserais mes questions puis je modifierais le schéma. Ici, essayez « envoie aussi le résumé dans Teams ».")};
+  $('#a-hist').innerHTML=a.hist.length?a.hist.map((h,i)=>`<tr><td class="num">${h[0]}</td><td class="num">${h[1]}</td><td class="r num">${h[2]}</td><td><span class="pill ${h[3]==='ok'?'p-ok':'p-warn'}">${h[4]}</span></td><td>${h[3]==='bad'?`<button type="button" class="btn" data-re="${i}">Relancer</button>`:''}</td></tr>`).join(''):'<tr><td colspan="5" class="muted">Jamais exécutée (inactive).</td></tr>';
+  $('#a-hist').querySelectorAll('[data-re]').forEach(b=>b.onclick=()=>toast('Exécution relancée. Le résultat arrivera dans le chat de Claire Vidal.'));
+}
+
+
+/* ---------- Application mobile ---------- */
+let ph={step:'install',tab:'chat',rec:null,sec:0,marks:[],pending:0,val:1,notifs:[],msgs:[]};
+function phRender(){const S=$('#ph');const off=$('#ph-off').checked;
+  const status=`<div class="sbar"><span>09:41</span><span>${off?'Pas de réseau':'4G'} · 82 %</span></div>`;
+  if(ph.step==='install'){S.innerHTML=status+`<div class="sbody" style="align-content:center;justify-items:center;text-align:center;gap:14px"><div class="logo" style="background:var(--accent);width:56px;height:56px;border-radius:16px;font-size:22px">G</div><h3>Portail IA</h3><p class="small muted" style="margin:0">Application de l'opérateur. Connectez-vous au portail de votre organisation.</p><button class="btn client" type="button" id="ph-qr">Scanner le QR code</button><button class="btn" type="button" id="ph-url">Saisir l'adresse du portail</button></div><div></div>`;
+    $('#ph-qr').onclick=$('#ph-url').onclick=()=>{ph.step='lock';phRender()};return}
+  if(ph.step==='lock'){S.innerHTML=status+`<div class="lock"><div class="logo" style="background:var(--client);width:56px;height:56px;border-radius:16px;font-size:20px;margin:auto">SA</div><b>Saint-Aubin · IA</b><span class="small muted">Déverrouillez avec votre empreinte ou votre visage.</span><button class="btn client" type="button" id="ph-bio">Utiliser l'empreinte</button></div><div></div><div></div>`;
+    $('#ph-bio').onclick=()=>{ph.step='app';phRender()};return}
+  const head=`<div><div class="sbar"><span>09:41</span><span>${off?'Pas de réseau':'4G'} · 82 %</span></div><div class="shead"><div class="logo" style="background:var(--client)">SA</div><b style="color:var(--client);font-size:14px">Saint-Aubin · IA</b></div></div>`;
+  const nav=`<nav class="snav">${[['chat','💬','Chat'],['rec','🎙','Enregistrer'],['val','✅','Valider'],['notif','🔔','Alertes']].map(([k,i,t])=>`<button type="button" data-t="${k}" aria-current="${ph.tab===k}"><span class="ic">${i}</span>${t}${k==='val'&&ph.val?`<span class="badge">${ph.val}</span>`:''}${k==='notif'&&ph.notifs.length?`<span class="badge">${ph.notifs.length}</span>`:''}</button>`).join('')}</nav>`;
+  let body='';
+  if(ph.tab==='chat'){
+    if(!ph.msgs.length)ph.msgs=[['ai',"Bonjour Sophie. Posez votre question, dictez-la ou envoyez une photo."]];
+    body=`<div style="display:grid;grid-template-rows:1fr auto;min-height:0"><div class="sbody" id="ph-msgs">${ph.msgs.map(m=>`<div class="pmsg ${m[0]}">${m[1]}</div>`).join('')}</div>
+      <form class="pcomp" id="ph-form"><button type="button" class="pbtn" id="ph-cam" aria-label="Photo">📷</button><input id="ph-in" placeholder="Votre question"><button type="button" class="pbtn" id="ph-mic" aria-label="Dicter">🎙</button></form></div>`}
+  if(ph.tab==='rec'){
+    if(!ph.rec) body=`<div class="sbody"><div class="rec"><b>Enregistrer une réunion</b><div class="pcard" style="text-align:left;background:var(--warn-soft)"><b>Avant de commencer</b>Informez les participants que la réunion est enregistrée et transcrite par l'IA.<i class="small">« Cette réunion est enregistrée pour en rédiger le compte rendu. Les données restent hébergées en France. »</i></div><button class="recdot" type="button" id="ph-start">Démarrer</button><span class="small muted">Fonctionne écran éteint et sans réseau.</span>${ph.pending?`<span class="pill p-warn">${ph.pending} enregistrement en attente d'envoi (chiffré)</span>`:''}</div></div>`;
+    else if(ph.rec==='on') body=`<div class="sbody"><div class="rec"><span class="pill ${off?'p-warn':'p-ok'}">${off?'Hors connexion : conservé chiffré sur le téléphone':'Connecté'}</span><div class="timer" id="ph-timer">${fmtT(ph.sec)}</div><div class="marks"><button class="chip" type="button" data-m="Décision">+ Décision</button><button class="chip" type="button" data-m="Action">+ Action</button><button class="chip" type="button" data-m="Important">+ Important</button></div><div class="small muted">${ph.marks.map(m=>`${m[0]} à ${fmtT(m[1])}`).join(' · ')||'Aucun marqueur'}</div><button class="recdot on" type="button" id="ph-stop">Arrêter</button></div></div>`;
+    else body=`<div class="sbody"><b>Que faire de cet enregistrement ?</b><span class="small muted">${fmtT(ph.sec)} · ${ph.marks.length} marqueur(s)</span>${['Compte rendu standard','Compte rendu de conseil municipal','Relevé de décisions'].map(t=>`<button class="btn" type="button" data-tr="${t}" style="text-align:left">${t}</button>`).join('')}</div>`}
+  if(ph.tab==='val') body=`<div class="sbody">${ph.val?`<div class="pcard"><span class="pill p-warn" style="justify-self:start">À valider</span><b>Relance d'une facture impayée</b><span>À : Éclairage Sud SARL<br>« Madame, Monsieur, sauf erreur de notre part, la facture n° 2026-118 de 6 200 € reste impayée… »</span><span class="small muted">Automatisation « Relance des factures impayées » · délai : 48 h</span><div class="row"><button class="btn client" type="button" data-v="ok">Approuver</button><button class="btn" type="button" data-v="mod">Modifier</button><button class="btn" type="button" data-v="no">Refuser</button></div></div>`:'<p class="muted small">Rien à valider.</p>'}</div>`;
+  if(ph.tab==='notif') body=`<div class="sbody">${ph.notifs.length?ph.notifs.map(n=>`<div class="pcard">${n}</div>`).join(''):'<p class="muted small">Aucune alerte.</p>'}<div class="pcard"><span class="small muted">Hier</span>Votre politique de chat a changé : la recherche sur internet n'est plus disponible pour l'équipe Accueil.</div></div>`;
+  S.innerHTML=head+body+nav;
+  S.querySelectorAll('.snav button').forEach(b=>b.onclick=()=>{ph.tab=b.dataset.t;if(b.dataset.t==='notif'){}phRender()});
+  if(ph.tab==='chat'){const box=$('#ph-msgs');box.scrollTop=box.scrollHeight;
+    const say=(q,a)=>{ph.msgs.push(['me',q]);phRender();setTimeout(()=>{ph.msgs.push(['ai',a+' <button class="chip" type="button" data-say style="font-size:11px;padding:2px 8px">🔊 Écouter</button>']);phRender()},450)};
+    $('#ph-form').onsubmit=e=>{e.preventDefault();const v=$('#ph-in').value.trim();if(v)say(v,"Dans cette maquette, essayez la dictée 🎙 ou la photo 📷.")};
+    $('#ph-mic').onclick=()=>say("🎙 « Quels sont les horaires d'ouverture de l'état civil samedi ? »","Le service État civil est ouvert le samedi de 9 h à 12 h. (Source : Procédure état civil 2024.pdf)");
+    $('#ph-cam').onclick=()=>say("📷 facture_eclairage.jpg","Facture Éclairage Sud SARL n° 2026-118, 6 200 € TTC, échue depuis le 10/09. Voulez-vous lancer la relance ? (validation requise)");
+    S.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>toast('Lecture à voix haute (simulation)'))}
+  if(ph.tab==='rec'){
+    $('#ph-start')&&($('#ph-start').onclick=()=>{ph.rec='on';ph.sec=0;ph.marks=[];clearInterval(ph.t);ph.t=setInterval(()=>{ph.sec+=37;const t=$('#ph-timer');if(t)t.textContent=fmtT(ph.sec)},1000);phRender()});
+    $('#ph-stop')&&($('#ph-stop').onclick=()=>{clearInterval(ph.t);ph.rec='done';phRender()});
+    S.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ph.marks.push([b.dataset.m,ph.sec]);phRender()});
+    S.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{const tr=b.dataset.tr;ph.rec=null;
+      if($('#ph-off').checked){ph.pending++;toast("Pas de réseau : enregistrement gardé chiffré, envoi automatique au retour du réseau.")}
+      else{toast(`Envoyé. Traitement « ${tr} » en cours.`);setTimeout(()=>{ph.notifs.unshift(`<span class="small muted">À l'instant</span><b>${tr} prêt</b>${ph.marks.length} marqueur(s) repris. Ouvrez-le dans le chat.`);phRender()},1500)}
+      phRender()})}
+  if(ph.tab==='val')S.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{const v=b.dataset.v;if(v==='mod'){toast("Modification du texte avant approbation (simulation)");return}ph.val=0;toast(v==='ok'?'Approuvé : la relance est envoyée.':'Refusé : le créateur de l\'automatisation est prévenu.');phRender()});
+}
+function fmtT(x){const h=Math.floor(x/3600),m=Math.floor(x%3600/60),sc=x%60;return `${h}:${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}`}
+$('#ph-off').onchange=()=>{if(!$('#ph-off').checked&&ph.pending){toast(`Réseau revenu : ${ph.pending} enregistrement(s) envoyé(s).`);ph.pending=0;ph.notifs.unshift('<span class="small muted">À l\'instant</span><b>Enregistrement envoyé</b>Le compte rendu sera prêt dans quelques minutes.')}phRender()};
+$('#ph-reset').onclick=()=>{clearInterval(ph.t);ph={step:'install',tab:'chat',rec:null,sec:0,marks:[],pending:0,val:1,notifs:[],msgs:[]};phRender()};
+
+
+/* ---------- Comptes rendus ---------- */
+const CR={step:0,spk:{},pres:{},votes:[[11,1,1],[13,0,0],[9,3,1]],adds:[],short:false,edit:false,sent:false,ok:false};
+const PARTS=['Anne Pujol (maire)','Marc Olivier (adjoint finances)','Rachida Mesli (conseillère)','Jean Roux (conseiller, secrétaire de séance)','Claire Vidal (DGS)','Hélène Bayle (adjointe scolaire)'];
+const COUNCIL=['Anne Pujol','Marc Olivier','Hélène Bayle','Rachida Mesli','Jean Roux','Paul Arnaud','Inès Carré','Louis Fabre','Sarah Gomez','Yves Hébert','Lina Morel','Théo Nadal','Chloé Perrin','Hugo Rigal','Nora Sabatier'];
+const DEF_PRES={'Paul Arnaud':'Excusé','Inès Carré':'Pouvoir à Anne Pujol','Théo Nadal':'Absent','Hugo Rigal':'Pouvoir à Rachida Mesli'};
+COUNCIL.forEach(n=>CR.pres[n]=DEF_PRES[n]||'Présent');
+const SPK=[['Intervenant 1',"« Mesdames et messieurs, je déclare la séance ouverte. Nous passons au premier point, le budget supplémentaire. »",0],['Intervenant 2',"« Le budget supplémentaire s'équilibre à 184 000 €, principalement pour la voirie et l'école. »",1],['Intervenant 3',"« Notre groupe votera contre : l'étude sur la cantine aurait dû être chiffrée avant. »",2],['Intervenant 4',"« Pour le procès-verbal : 11 voix pour, une contre, une abstention. »",3],['Intervenant 5',"« Le cahier des charges de l'étude cantine sera prêt pour novembre. »",5]];
+const DELIBS=['Budget supplémentaire 2026','Convention avec l\'office de tourisme Garrigues','Lancement de l\'étude sur la restauration scolaire'];
+function quorum(){const p=Object.values(CR.pres);const pres=p.filter(x=>x==='Présent').length;const pouv=p.filter(x=>x.startsWith('Pouvoir')).length;return {pres,pouv,vot:pres+pouv,ok:pres>=8}}
+function renderCR(){const el=$('#c-cr');const names=['Locuteurs','Présents et votes','Relecture','Validation et diffusion'];
+  let h=`<div class="spread"><div><div class="eyebrow">Conseil municipal · 18 septembre 2026 · 1 h 52</div><h3>Compte rendu de conseil municipal</h3></div><span class="pill p-info">Type : conseil municipal · accès public</span></div>
+  <div class="steps">${names.map((n,i)=>`<button type="button" class="stp ${i<CR.step?'done':''}" data-s="${i}" ${i===CR.step?'aria-current="step"':''}>${i<CR.step?'✓ ':''}${i+1}. ${n}</button>`).join('')}</div>`;
+  if(CR.step===0){const all=SPK.every(x=>CR.spk[x[0]]);
+    h+=`<p class="small muted" style="margin:0">Les voix ont été séparées automatiquement. Écoutez un extrait et indiquez qui parle. Aucune empreinte vocale n'est utilisée.</p>
+    <div class="scroll"><table><thead><tr><th>Voix</th><th>Extrait</th><th>Qui est-ce ?</th></tr></thead><tbody>${SPK.map(([v,q])=>`<tr><td><b>${v}</b><br><button type="button" class="chip" data-play style="font-size:12px;padding:2px 8px">▶ Écouter</button></td><td><div class="quote">${q}</div></td><td><select data-spk="${v}" style="border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--surface);max-width:220px"><option value="">Choisir…</option>${PARTS.map(p=>`<option ${CR.spk[v]===p?'selected':''}>${p}</option>`).join('')}<option>Autre personne…</option></select></td></tr>`).join('')}</tbody></table></div>
+    <div class="row"><button type="button" class="btn client" id="cr-next" ${all?'':'disabled'}>Continuer</button><button type="button" class="btn" id="cr-auto">Remplir l'exemple</button>${all?'':'<span class="small muted">Nommez chaque voix pour continuer.</span>'}</div>`}
+  if(CR.step===1){const q=quorum();
+    h+=`<div class="cols"><div class="panel"><div class="spread"><h3>Présents</h3><span class="pill ${q.ok?'p-ok':'p-warn'}">${q.ok?'Quorum atteint':'Quorum non atteint'} : ${q.pres} présents / 15 (8 requis)</span></div>
+      <div class="scroll" style="max-height:340px;overflow-y:auto"><table><tbody>${COUNCIL.map(n=>`<tr><td>${n}</td><td><select data-pr="${n}" style="border:1px solid var(--line);border-radius:6px;padding:3px;background:var(--surface)">${['Présent','Excusé','Absent','Pouvoir à Anne Pujol','Pouvoir à Rachida Mesli','Pouvoir à Marc Olivier'].map(o=>`<option ${CR.pres[n]===o?'selected':''}>${o}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table></div></div>
+      <div class="panel"><h3>Votes par délibération</h3><span class="small muted">${q.vot} votants (${q.pres} présents + ${q.pouv} pouvoirs)</span>
+      <div class="scroll"><table><thead><tr><th>Délibération</th><th class="r">Pour</th><th class="r">Contre</th><th class="r">Abst.</th><th></th></tr></thead><tbody>${DELIBS.map((d,i)=>{const v=CR.votes[i],t=v[0]+v[1]+v[2];return `<tr><td>${d}</td>${v.map((x,j)=>`<td class="r"><input class="v num" data-vo="${i},${j}" value="${x}" aria-label="${d}"></td>`).join('')}<td>${t===q.vot?'<span class="pill p-ok">OK</span>':`<span class="pill p-warn">${t} ≠ ${q.vot}</span>`}</td></tr>`}).join('')}</tbody></table></div>
+      <span class="small muted">Chiffres pré-remplis à partir de l'audio (« 11 voix pour, une contre… ») ; vérifiez-les.</span></div></div>
+      <div class="row"><button type="button" class="btn client" id="cr-next">Continuer</button></div>`}
+  if(CR.step===2){const q=quorum();const sp=n=>n.split(' (')[0];
+    h+=`<form class="row" id="cr-talk"><input id="cr-talk-in" style="flex:1;min-width:200px;border:1px solid var(--line);border-radius:10px;padding:8px 11px;background:var(--surface)" placeholder="Corriger en parlant, ex. : ajoute que le vote sur la cantine a été reporté"><button class="btn client" type="submit">Corriger</button></form>
+    <div class="row"><span class="small muted">Suggestions :</span><button type="button" class="chip" data-sg="Ajoute que le vote sur l'étude cantine a été reporté au prochain conseil">Ajoute que le vote sur l'étude cantine a été reporté</button><button type="button" class="chip" data-sg="Raccourcis la partie budget">Raccourcis la partie budget</button><button type="button" class="btn" id="cr-edit">${CR.edit?'Terminer l\'édition':'Modifier le texte à la main'}</button></div>
+    <article class="doc" ${CR.edit?'contenteditable="true"':''} id="cr-doc">
+      <header><div class="row"><div class="logo" style="background:var(--client)">SA</div><div><b>Mairie de Saint-Aubin</b><br><span class="small muted">Modèle importé : « PV conseil 2025.docx »</span></div></div><span class="small">Séance du 18/09/2026</span></header>
+      <p><b>Présents :</b> ${COUNCIL.filter(n=>CR.pres[n]==='Présent').join(', ')}.<br><b>Pouvoirs :</b> ${COUNCIL.filter(n=>CR.pres[n].startsWith('Pouvoir')).map(n=>n+' ('+CR.pres[n].replace('Pouvoir','pouvoir')+')').join(', ')||'aucun'}. <b>Excusés / absents :</b> ${COUNCIL.filter(n=>['Excusé','Absent'].includes(CR.pres[n])).join(', ')||'aucun'}.<br>Quorum ${q.ok?'atteint':'non atteint'} (${q.pres}/15). Secrétaire de séance : Jean Roux.</p>
+      <h4>1. ${DELIBS[0]}</h4>
+      <p>${CR.short?`${sp(CR.spk['Intervenant 2']||'L\'adjoint aux finances')} présente un budget supplémentaire équilibré à 184 000 € (voirie, école).`:`${sp(CR.spk['Intervenant 2']||'L\'adjoint aux finances')} présente le budget supplémentaire, qui s'équilibre à 184 000 €. Les principales inscriptions concernent la réfection de la voirie du chemin des Aires (96 000 €) et l'équipement numérique de l'école (52 000 €). Le solde couvre des ajustements de fonctionnement.`} ${sp(CR.spk['Intervenant 3']||'Une conseillère')} annonce que son groupe votera contre.</p>
+      <p><span class="mk">Vote</span> Pour ${CR.votes[0][0]} · contre ${CR.votes[0][1]} · abstention ${CR.votes[0][2]}. <b>Adopté.</b></p>
+      <h4>2. ${DELIBS[1]}</h4><p>Renouvellement pour trois ans. <span class="mk">Vote</span> Pour ${CR.votes[1][0]} · contre ${CR.votes[1][1]} · abstention ${CR.votes[1][2]}. <b>Adopté.</b></p>
+      <h4>3. ${DELIBS[2]}</h4><p><span class="mk">Décision</span> Lancement de l'étude. <span class="mk">Action</span> ${sp(CR.spk['Intervenant 5']||'L\'adjointe scolaire')} : cahier des charges pour novembre. <span class="mk">Vote</span> Pour ${CR.votes[2][0]} · contre ${CR.votes[2][1]} · abstention ${CR.votes[2][2]}.</p>
+      ${CR.adds.map(a=>`<p class="added">${a}</p>`).join('')}
+      <p class="small muted">La séance est levée à 20 h 42.</p>
+    </article>
+    <div class="row"><button type="button" class="btn client" id="cr-next">Envoyer à la validation</button></div>`}
+  if(CR.step===3){
+    h+=CR.ok?`<div class="dry"><b>Validé par Jean Roux, secrétaire de séance.</b>Diffusion effectuée selon les règles du type « conseil municipal » :</div>
+      <div class="cols">
+        <div class="panel"><h3>Diffusion</h3><div class="small" style="display:grid;gap:4px"><span>✓ Envoyé aux 15 conseillers (e-mail) et dans le chat des élus</span><span>✓ Déposé dans SharePoint › Délibérations › 2026</span><span>✓ Publié (accès public) et interrogeable dans le chat</span></div></div>
+        <div class="panel"><h3>Actions devenues des tâches</h3><table><tbody><tr><td>Cahier des charges étude cantine</td><td>Hélène Bayle</td><td class="num">30/11</td><td><span class="pill p-info">Planner</span></td></tr><tr><td>Lancer les travaux chemin des Aires</td><td>Services techniques</td><td class="num">15/10</td><td><span class="pill p-info">Planner</span></td></tr></tbody></table></div>
+        <div class="panel"><h3>Conservation</h3><div class="small" style="display:grid;gap:4px"><span>Audio : supprimé le 18/12/2026 (3 mois)</span><span>Transcription : supprimée le 18/09/2027 (1 an)</span><span>Compte rendu : conservé</span></div></div>
+      </div>`
+    :`<div class="panel"><h3>Validation</h3><p class="small" style="margin:0">Pour ce type, le compte rendu doit être approuvé par le <b>secrétaire de séance</b> avant diffusion.</p>
+      ${CR.sent?`<div class="row"><span class="pill p-warn">En attente de Jean Roux · envoyé à l'instant · délai 72 h</span><button type="button" class="btn" id="cr-sim">Simuler son approbation</button></div>`:`<div class="row"><button type="button" class="btn client" id="cr-send">Envoyer à Jean Roux</button></div>`}</div>`}
+  el.innerHTML=h;
+  el.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{CR.step=+b.dataset.s;renderCR()});
+  el.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>toast('Lecture de l\'extrait (simulation)'));
+  el.querySelectorAll('[data-spk]').forEach(sl=>sl.onchange=()=>{CR.spk[sl.dataset.spk]=sl.value;renderCR()});
+  el.querySelectorAll('[data-pr]').forEach(sl=>sl.onchange=()=>{CR.pres[sl.dataset.pr]=sl.value;renderCR()});
+  el.querySelectorAll('[data-vo]').forEach(i=>i.onchange=()=>{const [a,b]=i.dataset.vo.split(',').map(Number);const v=parseInt(i.value,10);if(!isNaN(v))CR.votes[a][b]=v;renderCR()});
+  const nx=$('#cr-next');if(nx)nx.onclick=()=>{CR.step++;renderCR()};
+  const au=$('#cr-auto');if(au)au.onclick=()=>{SPK.forEach(([v,,i])=>CR.spk[v]=PARTS[i]);renderCR()};
+  const talk=t=>{if(/report/i.test(t)){CR.adds.push("Le vote sur le lancement de l'étude de restauration scolaire est reporté au prochain conseil, à la demande de l'opposition.")}else if(/raccourci|court/i.test(t)){CR.short=true}else{toast("Dans le vrai portail, la correction serait appliquée. Ici, essayez une suggestion.");return}toast('Correction appliquée, surlignée en vert.');renderCR()};
+  const tf=$('#cr-talk');if(tf)tf.onsubmit=e=>{e.preventDefault();talk($('#cr-talk-in').value)};
+  el.querySelectorAll('[data-sg]').forEach(b=>b.onclick=()=>talk(b.dataset.sg));
+  const ed=$('#cr-edit');if(ed)ed.onclick=()=>{CR.edit=!CR.edit;renderCR();if(CR.edit)$('#cr-doc').focus()};
+  const sd=$('#cr-send');if(sd)sd.onclick=()=>{CR.sent=true;toast('Envoyé à Jean Roux pour validation. Il peut aussi valider depuis l\'application mobile.');renderCR()};
+  const sm=$('#cr-sim');if(sm)sm.onclick=()=>{CR.ok=true;renderCR()};
+}
+document.querySelectorAll('[data-cv]').forEach(b=>b.onclick=()=>{const v=b.dataset.cv;document.querySelectorAll('[data-cv]').forEach(x=>x.setAttribute('aria-pressed',x===b));$('#c-cr').hidden=v!=='cr';$('#c-fi').hidden=v!=='fi';$('#c-chatwrap').hidden=v!=='chat';$('#c-model-l').hidden=v!=='chat';if(v==='cr')renderCR();if(v==='fi')renderFI()});
+
+
+/* ---------- Fiches ---------- */
+const FI={cur:'moulin',filter:'toutes',dupDone:false,list:[
+ {id:'moulin',t:'org',n:'Association Les Amis du Moulin',mode:'Intégrée',vis:'Toute la mairie',f:[['RNA','W123004567'],['Adresse','Chemin du Moulin, 34990 Saint-Aubin'],['Objet','Sauvegarde du moulin et animations']],
+  contacts:[['Julie Martin','Présidente','julie.martin@exemple.fr',false]],
+  tl:[['12/09','E-mail','Demande de salle pour les journées du patrimoine'],['18/09','Compte rendu','Citée au conseil municipal : subvention de 1 500 € évoquée'],['20/09','Document','Convention de mise à disposition de salle (PDF)']],dup:true},
+ {id:'eclairage',t:'org',n:'Éclairage Sud SARL',mode:'Externe · Zoho',vis:'Équipe Finances',f:[['SIRET','512 345 678 00021'],['Adresse','ZA des Prés, 34000 Montpellier'],['Dirigeant','Marc Delmas']],
+  contacts:[['Sonia Riva','Comptabilité','compta@eclairage-sud.fr',false]],
+  tl:[['10/09','Facture (Pennylane)','Facture n° 2026-118 · 6 200 € · échue'],['23/09','E-mail','Relance préparée, en attente de validation']],ext:true},
+ {id:'domaine',t:'org',n:'Domaine des Garrigues',mode:'Intégrée',vis:'Privée (Karim Benali)',f:[['SIRET','498 765 432 00015'],['Secteur','Viticulture, oenotourisme'],['Effectif','12 salariés']],
+  contacts:[['Paul Garrigue','Gérant','paul@domainedesgarrigues.fr',false]],
+  tl:[['05/09','E-mail','Premier contact : mécénat pour la fête du village'],['19/09','Tâche','Relancer si pas de réponse (séquence, relance 1/2)']],crm:{stage:2,amount:'5 000 €',prob:'40 %',date:'15/11/2026'},seq:true},
+]};
+function renderFI(){const el=$('#c-fi');const vis=FI.list.filter(x=>FI.filter==='toutes'||(FI.filter==='privees'&&x.vis.startsWith('Privée'))||(FI.filter==='equipe'&&x.vis.startsWith('Équipe')));
+  const f=FI.list.find(x=>x.id===FI.cur)||FI.list[0];const stages=['Prospect','Contacté','Rendez-vous','Proposition','Gagné','Perdu'];
+  el.innerHTML=`<div class="spread"><h3>Fiches organisations et contacts</h3><div class="seg" role="group" aria-label="Filtre">${[['toutes','Toutes'],['equipe','Mon équipe'],['privees','Privées']].map(([k,t])=>`<button type="button" data-ff="${k}" aria-pressed="${FI.filter===k}">${t}</button>`).join('')}</div></div>
+   <form class="row" id="fi-talk"><input id="fi-talk-in" style="flex:1;min-width:200px;border:1px solid var(--line);border-radius:10px;padding:8px 11px;background:var(--surface)" placeholder="En parlant : ajoute Julie Martin, présidente de l'association Les Amis du Moulin"><button class="btn client" type="submit">Créer</button><button class="btn" type="button" id="fi-card">📷 Carte de visite</button><button class="btn" type="button" id="fi-find">Trouver des cibles</button></form>
+   <div class="fgrid"><div class="flist">${vis.map(x=>`<button type="button" class="aitem" data-fi="${x.id}" aria-current="${x.id===f.id}"><span><b>${x.n}</b><br><span class="small muted">${x.vis}</span></span><span class="pill ${x.ext?'p-partner':'p-info'}">${x.mode}</span></button>`).join('')||'<p class="muted small">Aucune fiche.</p>'}</div>
+   <div class="panel">
+     ${f.dup&&!FI.dupDone?`<div class="banner" style="border-radius:8px">Doublon possible : « Amis du Moulin (asso) », créée le 02/09 par Sophie Marty. <button type="button" class="btn" id="fi-merge">Fusionner</button></div>`:''}
+     ${f.ext?`<div class="src-note">Lu dans Zoho à l'instant. Rien n'est enregistré dans le portail. Toute modification part dans Zoho après validation.</div>`:''}
+     <div class="spread"><h3>${f.n}</h3><span class="pill p-info">${f.vis}</span></div>
+     <div class="cols"><div><div class="eyebrow">Identité</div><dl style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:6px 0 0;font-size:14px">${f.f.map(([k,v])=>`<dt class="muted">${k}</dt><dd style="margin:0">${v}</dd>`).join('')}</dl><span class="small muted">Complété avec les données publiques.</span></div>
+       <div><div class="eyebrow">Contacts</div>${f.contacts.map((c,i)=>`<div class="small" style="margin-top:6px"><b>${c[0]}</b> · ${c[1]}<br><span class="num">${c[2]}</span><br><label class="tg" style="justify-content:flex-start;gap:8px"><input class="sw" type="checkbox" data-opp="${i}" ${c[3]?'checked':''}><span>S'oppose à la prospection</span></label></div>`).join('')}</div></div>
+     ${f.crm?`<div class="eyebrow">Suivi</div><div class="pipe">${stages.map((st,i)=>`<button type="button" data-st="${i}" aria-pressed="${f.crm.stage===i}">${st}</button>`).join('')}</div><div class="small">Opportunité : <b>${f.crm.amount}</b> · probabilité ${f.crm.prob} · décision le ${f.crm.date}</div>
+       ${f.seq?`<div class="row small"><span class="pill ${f.contacts[0][3]?'p-warn':'p-ok'}">${f.contacts[0][3]?'Séquence arrêtée : opposition à la prospection':'Séquence de relance active · relance 2 prévue le 03/10'}</span><button type="button" class="btn" id="fi-msg">Rédiger un message</button></div>`:''}`:''}
+     <div class="eyebrow">Chronologie</div><div class="tl">${f.tl.map(t=>`<div><span class="d">${t[0]}</span> · <b>${t[1]}</b> · ${t[2]}</div>`).join('')}</div>
+     <div class="row"><button type="button" class="btn" id="fi-chat">Demander au chat</button>${f.ext?'<button type="button" class="btn" id="fi-edit-ext">Modifier dans Zoho</button>':'<button type="button" class="btn" id="fi-edit">Modifier (formulaire)</button>'}</div>
+   </div></div>`;
+  el.querySelectorAll('[data-ff]').forEach(b=>b.onclick=()=>{FI.filter=b.dataset.ff;renderFI()});
+  el.querySelectorAll('[data-fi]').forEach(b=>b.onclick=()=>{FI.cur=b.dataset.fi;renderFI()});
+  el.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{f.crm.stage=+b.dataset.st;toast(`Étape : ${stages[f.crm.stage]}`);renderFI()});
+  el.querySelectorAll('[data-opp]').forEach(i=>i.onchange=()=>{f.contacts[+i.dataset.opp][3]=i.checked;toast(i.checked?'Opposition enregistrée : plus aucun message de prospection, séquence arrêtée.':'Opposition retirée.');renderFI()});
+  const m=$('#fi-merge');if(m)m.onclick=()=>{FI.dupDone=true;toast('Fiches fusionnées : contacts et historique réunis.');renderFI()};
+  $('#fi-talk').onsubmit=e=>{e.preventDefault();const v=$('#fi-talk-in').value.trim();if(!v)return;
+    if(/julie|moulin/i.test(v)){FI.cur='moulin';toast('La fiche « Les Amis du Moulin » existe déjà : Julie Martin y est rattachée, aucun doublon créé.');renderFI()}
+    else toast('Dans le vrai portail, la fiche serait créée à partir de votre phrase. Ici, essayez l\'exemple.')};
+  $('#fi-card').onclick=()=>{if(!FI.list.find(x=>x.id==='boulangerie')){FI.list.push({id:'boulangerie',t:'org',n:'Boulangerie Fabre',mode:'Intégrée',vis:'Toute la mairie',f:[['SIRET','823 456 789 00012'],['Adresse','2 place de la Mairie, Saint-Aubin'],['Dirigeant','Louis Fabre']],contacts:[['Louis Fabre','Gérant','contact@boulangerie-fabre.fr',false]],tl:[['25/09','Création','Fiche créée depuis une carte de visite photographiée']]})}FI.cur='boulangerie';toast('Carte de visite lue : fiche créée, SIRET complété avec les données publiques.');renderFI()};
+  $('#fi-find').onclick=()=>toast('Recherche de cibles : 23 entreprises de tourisme à moins de 20 km (données publiques). Sélectionnez celles à ajouter.');
+  $('#fi-chat').onclick=()=>{document.querySelector('[data-cv=chat]').click();cSend('Résume nos échanges avec '+f.n)};
+  const ed=$('#fi-edit');if(ed)ed.onclick=()=>toast('Formulaire classique de modification (simulation)');
+  const ee=$('#fi-edit-ext');if(ee)ee.onclick=()=>toast('Modification préparée. Elle sera écrite dans Zoho après validation de Claire Vidal.');
+  const ms=$('#fi-msg');if(ms)ms.onclick=()=>{if(f.contacts[0][3]){toast('Impossible : ce contact s\'oppose à la prospection.');return}toast('Message personnalisé rédigé. Envoi après validation.')};
+}
+
+/* ---------- C : chat utilisateur ---------- */
+const cMsgs=$('#c-msgs');let viewer='Sophie Marty',curChat=null;
+const cAns={
+ "Quelles pièces pour un acte de naissance ?":{a:"Pour un acte de naissance, la personne concernée (ou un ascendant, descendant, conjoint) fournit une pièce d'identité et indique nom, prénoms, date de naissance et noms des parents. La demande est gratuite (art. 7 du décret n° 2017-890). À Saint-Aubin, elle peut se faire au guichet ou en ligne.",src:'Documents État civil',s:['Procédure état civil 2024.pdf, p. 3'],sens:true},
+ "Rédige un courrier de réponse à une réclamation sur l'éclairage public":{a:"Voici un projet de courrier :<br><br><i>Madame, Monsieur,<br>Nous avons bien reçu votre signalement concernant l'éclairage de la rue des Aires. Les services techniques interviendront d'ici le 3 octobre…</i>",src:'SharePoint de la mairie',s:['Charte de rédaction de la mairie.docx']},
+ "Résume le dernier conseil municipal":{a:"Conseil du 18 septembre : 1) budget supplémentaire adopté (14 pour, 3 contre) ; 2) lancement de l'étude pour la cantine ; 3) convention avec l'office de tourisme renouvelée.",src:'Délibérations et comptes rendus',s:['CR conseil municipal 18-09.pdf']},
+ "Cherche sur internet les horaires de la préfecture":{web:true,a:"La préfecture est ouverte du lundi au vendredi, de 8 h 30 à 12 h (source : site de la préfecture, consulté aujourd'hui)."},
+ "Envoie ce courrier au demandeur par e-mail":{act:'email'},
+ "Résume nos échanges avec Association Les Amis du Moulin":{a:"Trois échanges en septembre : demande de salle pour les journées du patrimoine (12/09), subvention de 1 500 € évoquée au conseil du 18/09, convention de mise à disposition envoyée le 20/09. Prochaine étape : signature de la convention.",src:'Délibérations et comptes rendus',s:['Fiche Les Amis du Moulin','CR conseil municipal 18-09.pdf']},
+ "Montre-moi les factures Pennylane de septembre":{src:'Pennylane (factures)',a:"12 factures en septembre, pour 18 430 € TTC. La plus élevée : éclairage public, 6 200 €.",s:['Pennylane · export du 24/09']},
+};
+function logRefus(d,b){REFUS.unshift({q:"À l'instant",u:viewer,d,b});renderRefus()}
+function cChats(){const p=PEOPLE[viewer];$('#c-chats').innerHTML=['',...p.chats].map(c=>`<button type="button" data-c="${c}" aria-pressed="${(curChat||'')===c}">${c?'Chat '+c:'Chat principal'}</button>`).join('');
+  $('#c-chats').querySelectorAll('button').forEach(b=>b.onclick=()=>{curChat=b.dataset.c||null;cStart()});
+  const e=effective(viewer,curChat);const sel=$('#c-model');sel.innerHTML=e.models.map(m=>`<option ${m===e.def?'selected':''}>${m}</option>`).join('');sel.disabled=!e.lib.model.v;sel.title=e.lib.model.v?'':'Choix du modèle non autorisé par votre politique'}
+function cStart(){cMsgs.innerHTML='';cChats();$('#c-pol').hidden=true;const first=viewer.split(' ')[0];
+  bubble(cMsgs,'ai',curChat?`Chat spécialisé ${curChat}. Je réponds uniquement à partir des documents de ce domaine.`:`Bonjour ${first}. Que puis-je faire pour vous ?`);cChips()}
+function cChips(){$('#c-chips').innerHTML='';Object.keys(cAns).forEach(t=>{const b=document.createElement('button');b.className='chip';b.type='button';b.textContent=t;b.onclick=()=>cSend(t);$('#c-chips').appendChild(b)})}
+function refus(t,reason){const d=bubble(cMsgs,'ai refus',`Je ne peux pas faire cela : ${reason}.${effective(viewer,curChat).lib.voir.v?'':''}<br><span class="small">Vous pouvez demander un accès à votre administratrice.</span>`);logRefus(t,reason)}
+function cSend(t){if(!t.trim())return;bubble(cMsgs,'me',t.replace(/</g,'&lt;'));const r=cAns[t];const e=effective(viewer,curChat);let model=$('#c-model').value||e.def;
+  setTimeout(()=>{
+    if(!r){bubble(cMsgs,'ai',"Dans cette maquette, seules les questions proposées ont une réponse.");return}
+    if(r.web&&!e.web){refus(t,`la recherche sur internet est interdite par la politique « ${e.webBy.join(', ')} »`);return}
+    if(r.act){const a=e.actions[r.act];if(a.v==='non'){refus(t,`l'envoi d'e-mails est interdit par la politique « ${a.by} »`);return}
+      bubble(cMsgs,'ai',a.v==='validation'?`Brouillon prêt. L'envoi est soumis à l'accord de Claire Vidal (règle « ${a.by} »). Je vous préviens dès qu'elle a validé.`:'E-mail envoyé au demandeur.');return}
+    const ok=!r.src||e.src.includes(r.src);
+    if(!ok&&(e.strict||r.src==='Pennylane (factures)')){refus(t,`la source « ${r.src} » n'est pas ouverte par votre politique${e.why['src:'+r.src]?' (retirée par '+e.why['src:'+r.src]+')':''}${e.strict?' et le mode strict est actif':''}`);return}
+    let routed='';if(r.sens&&e.sens&&!['Modèle hébergé en France','Modèle local'].includes(model)){model=e.models.find(m=>['Modèle hébergé en France','Modèle local'].includes(m))||model;routed=' (basculé automatiquement : données personnelles)'}
+    const d=bubble(cMsgs,'ai',ok?r.a:"Je ne trouve pas cela dans les sources de la mairie qui vous sont ouvertes. Voici une réponse générale, sans source : "+r.a);
+    const src=document.createElement('div');src.className='src';src.innerHTML=(ok&&r.s?r.s:[]).map(x=>`<span>📄 ${x}</span>`).join('')+`<span>${model}</span>`;d.appendChild(src);
+    const det=document.createElement('details');det.className='details';det.innerHTML=`<summary>Pourquoi cette réponse ?</summary>Sources consultées : ${ok&&r.src?r.src:'aucune source de la mairie'}. Modèle : ${model}${routed}. Règles appliquées : ${e.keys.map(label).join(', ')}${e.cons.length?'. Consignes : '+e.cons.join(' '):''}.`;d.appendChild(det)},400)}
+$('#c-form').onsubmit=e=>{e.preventDefault();const v=$('#c-input').value;$('#c-input').value='';cSend(v)};
+$('#c-mypol').onclick=()=>{const el=$('#c-pol');const e=effective(viewer,curChat);if(!e.lib.voir.v){toast('Votre politique ne permet pas de la consulter');return}el.innerHTML=effHTML(viewer,curChat);el.hidden=!el.hidden};
+document.querySelectorAll('.mic').forEach(m=>m.onclick=()=>toast('Dictée vocale : disponible dans le vrai portail'));
+$('#pol-voir').onclick=()=>{const n=polKey.split(':')[1];const person=polKind==='user'?n:(Object.entries(PEOPLE).find(([p,x])=>x.profil===n||x.equipes.includes(n)||x.chats.includes(n))||['Sophie Marty'])[0];
+  viewer=person;curChat=polKind==='chat'&&PEOPLE[person].chats.includes(n)?n:null;$('#c-banner-t').textContent=`Vous voyez le chat comme ${person} (${label(polKey)}). Rien n'est envoyé en son nom.`;$('#c-banner').hidden=false;show('C');cStart()};
+$('#c-banner-x').onclick=()=>{$('#c-banner').hidden=true;viewer='Sophie Marty';curChat=null;show('B');document.querySelector('[data-b=pol]').click()};
+
+/* ---------- questions ---------- */
+const QS={
+ A:[
+  {id:'a1',q:"Le tableau des portails vous donne-t-il les bonnes informations en un coup d'œil ?",c:['Oui','Il manque des colonnes','Trop chargé']},
+  {id:'a2',q:"Quels KPI voulez-vous en tête du générateur ?",ctx:"C'était resté « à définir plus tard ».",c:['Coût réel','Montants calculés','Marge','Utilisateurs actifs','Consommation / enveloppe'],multi:true},
+  {id:'a3',q:"Quand un partenaire ferme une option, voulez-vous être alerté ?",c:['Oui, à chaque fois','Résumé quotidien','Non, l\'historique suffit']},
+  {id:'a4',q:"Le schéma « qui gagne quoi » est-il juste ?",c:['Oui','Non, je précise']},
+ ],
+ D:[
+  {id:'d1',q:"La demande de portail par formulaire vous convient-elle, ou le partenaire doit-il aussi pouvoir la faire en parlant ?",c:['Formulaire','En parlant','Les deux']},
+  {id:'d2',q:"Le partenaire doit-il voir sa marge en euros ?",c:['Oui','Non, seulement ses commissions']},
+  {id:'d3',q:"Un partenaire peut-il suspendre le portail d'un de ses clients (impayé par exemple) ?",c:['Oui','Non, seulement l\'opérateur']},
+  {id:'d4',q:"Faut-il un contrat ou des conditions à accepter par le partenaire dans son espace ?",c:['Oui','Non']},
+ ],
+ B:[
+  {id:'b1',q:"La création en parlant (questions puis fiche récapitulative) correspond-elle à ce que vous imaginiez ?",c:['Oui','Plus de questions','Moins de questions']},
+  {id:'b2',q:"Après « Publier », qui doit être prévenu ?",c:['Personne','Les utilisateurs concernés','L\'opérateur et le partenaire'],multi:true},
+  {id:'b3',q:"Faut-il garder quelques écrans classiques (listes, tableaux) à côté de la création en parlant ?",c:['Oui, pour consulter','Non, tout en parlant']},
+  {id:'b4',q:"La consommation nominative par agent vous semble-t-elle acceptable pour une mairie ?",c:['Oui','Plutôt par équipe','À faire valider par un DPO']},
+  {id:'b5',q:"Politiques de chat : la fiche en quatre blocs est-elle claire ?",ctx:"Écran « Politiques de chat ».",c:['Oui','Trop détaillée','Il manque des réglages']},
+  {id:'b6',q:"Un responsable d'équipe peut-il assouplir la politique de son équipe, ou seulement la durcir ?",c:['Seulement la durcir','Assouplir dans les limites de l\'admin']},
+  {id:'b7',q:"Qui définit ce qu'est une donnée sensible pour le routage des modèles ?",c:['Liste prédéfinie (santé, social, identité…)','L\'admin la décrit en parlant','Les deux']},
+  {id:'b8',q:"Faut-il des politiques temporaires (ex. stagiaire jusqu'au 31/12) ?",c:['Oui','Non']},
+  {id:'b9',q:"Quand une politique change, faut-il prévenir les utilisateurs concernés ?",c:['Oui, avec le détail','Oui, message simple','Non']},
+  {id:'b11',q:"Automatisations : le schéma simple suffit-il pour relire ?",ctx:"Écran « Automatisations ».",c:['Oui','Je veux aussi la liste des étapes en texte']},
+  {id:'b12',q:"L'essai à blanc doit porter sur :",c:['Le dernier cas réel','Un cas que je choisis','Les deux']},
+  {id:'b13',q:"Faut-il un bouton d'arrêt d'urgence qui met en pause toutes les automatisations du portail ?",c:['Oui, pour l\'admin','Oui, pour l\'admin et l\'opérateur','Non']},
+  {id:'b14',q:"Dans la consommation, à qui imputer le coût d'une automatisation ?",c:['À l\'équipe de son créateur','Ligne « Automatisations » séparée','À la personne qui la lance']},
+  {id:'b15',q:"Quand un utilisateur active une automatisation du catalogue, qui voit ses résultats ?",c:['Lui seul','Son équipe','Selon l\'automatisation']},
+  {id:'b10',q:"Le panneau « Politique effective » (qui a retiré quoi) est-il utile à l'admin ?",c:['Indispensable','Utile','Inutile']},
+ ],
+ M:[
+  {id:'m1',q:"La connexion (QR code ou adresse du portail) est-elle assez simple ?",c:['Oui','Préférer un lien reçu par e-mail','Les deux']},
+  {id:'m2',q:"Quels marqueurs proposer pendant l'enregistrement ?",c:['Décision','Action','Vote','Question','Important'],multi:true},
+  {id:'m3',q:"Le compte rendu doit-il identifier qui parle ?",c:['Oui, automatiquement','Oui, noms ajoutés après','Non']},
+  {id:'m4',q:"La lecture à voix haute des réponses doit être :",c:['Sur demande (bouton)','Automatique si la question a été dictée','Réglable par l\'utilisateur']},
+  {id:'m5',q:"Faut-il pouvoir reprendre sur le web une conversation commencée sur le téléphone (et inversement) ?",c:['Oui','Non']},
+  {id:'m6',q:"Durée maximale d'un enregistrement ?",c:['2 heures','4 heures','8 heures','Sans limite']},
+ ],
+ C:[
+  {id:'f1',q:"Fiches : la fiche en une page (identité, contacts, suivi, chronologie) est-elle claire ?",ctx:"Portail utilisateur › Fiches.",c:['Oui','Trop chargée','Il manque des éléments']},
+  {id:'f2',q:"En mode externe, faut-il indiquer d'où vient l'information (« lu dans Zoho à l'instant ») ?",c:['Oui','Non']},
+  {id:'f3',q:"Quand un doublon est détecté, qui fusionne ?",c:['L\'utilisateur','Un admin','Proposé automatiquement, confirmé par l\'utilisateur']},
+  {id:'f4',q:"Séquences de relance : nombre de relances par défaut ?",c:['1','2','3','Réglable par séquence']},
+  {id:'f5',q:"Faut-il une vue en colonnes du suivi (une colonne par étape, on déplace les fiches) ?",c:['Oui','Non, la liste suffit']},
+
+  {id:'r1',q:"Comptes rendus : l'ordre des étapes (locuteurs, présents et votes, relecture, validation) vous convient-il ?",ctx:"Portail utilisateur › Comptes rendus.",c:['Oui','Autre ordre (précisez)']},
+  {id:'r2',q:"L'IA peut-elle proposer le nom d'un locuteur d'après ce qui est dit (ex. « Madame la Maire ») ? L'utilisateur confirme toujours.",c:['Oui','Non, toujours manuel']},
+  {id:'r3',q:"Pour les communes, faut-il produire séparément le procès-verbal, la liste des délibérations et le compte rendu ?",ctx:"Obligations réformées en 2022 : à faire vérifier par un juriste.",c:['Oui, documents séparés','Non, un seul document']},
+  {id:'r4',q:"Outil par défaut pour les tâches issues des actions ?",c:['Microsoft Planner','Notion','Zoho','Tâches dans le portail']},
+  {id:'r5',q:"Qui peut modifier un compte rendu déjà validé ?",c:['Personne : nouvelle version à revalider','Le validateur','L\'admin']},
+
+  {id:'c1',q:"Le choix du modèle doit-il être visible par l'utilisateur ?",c:['Oui','Non, toujours automatique','Selon le forfait']},
+  {id:'c2',q:"Les sources citées sous chaque réponse sont-elles utiles ?",c:['Oui','Seulement sur demande']},
+  {id:'c3',q:"Que doit afficher l'écran d'accueil du chat ?",c:['Suggestions de questions','Chats spécialisés disponibles','Actualités de la mairie','Rien, juste la saisie'],multi:true},
+  {id:'c4',q:"Un agent doit-il pouvoir partager une conversation avec un collègue ?",c:['Oui','Non']},
+  {id:'c5',q:"Quand une demande est refusée par la politique, que voit l'utilisateur ?",ctx:"Essayez « Cherche sur internet… » comme Sophie.",c:['Le motif précis','Un message générique','Le motif + qui contacter']},
+  {id:'c6',q:"L'utilisateur peut-il demander une exception depuis le chat (ex. accès à une source) ?",c:['Oui, la demande part à l\'admin','Non']},
+  {id:'c7',q:"Comment passer du chat principal à un chat spécialisé ?",c:['Onglets en haut','Le chat principal le propose tout seul','Les deux']},
+  {id:'c8',q:"Le chat principal doit-il pouvoir consulter un chat spécialisé en coulisse (ex. questions d'urbanisme posées au chat principal) ?",c:['Oui, si l\'utilisateur y a droit','Non, l\'utilisateur doit changer de chat']},
+  {id:'c9',q:"« Pourquoi cette réponse ? » doit-il être visible par l'utilisateur, ou seulement par l'admin ?",c:['Utilisateur et admin','Admin seulement']},
+  {id:'c11',q:"Quand une automatisation a produit un résultat pour moi, comment l'apprendre ?",c:['Message dans le chat principal','Notification avec lien','Les deux']},
+  {id:'c10',q:"Les consignes personnelles d'un utilisateur sont-elles visibles par l'admin ?",c:['Oui','Non']},
+ ]};
+let answers={};let db=null;
+try{answers=JSON.parse(localStorage.getItem('answers')||'{}')}catch(e){}
+function renderQs(r){
+  const list=$('#q-list');list.innerHTML='';
+  QS[r].forEach(q=>{const a=answers[q.id]||{choix:[],note:''};const el=document.createElement('div');el.className='q'+(a.choix.length||a.note?' done':'');
+    el.innerHTML=`<p>${q.q}${q.ctx?`<br><span class="ctx">${q.ctx}</span>`:''}</p><div class="choices">${q.c.map(c=>`<button type="button" aria-pressed="${a.choix.includes(c)}">${c}</button>`).join('')}</div><textarea id="note-${q.id}" rows="1" placeholder="Précision (facultatif)">${a.note||''}</textarea><span class="saved" hidden></span>`;
+    el.querySelectorAll('.choices button').forEach(b=>b.onclick=()=>{let ch=[...(answers[q.id]?.choix||[])];const v=b.textContent;
+      if(q.multi){ch=ch.includes(v)?ch.filter(x=>x!==v):[...ch,v]}else{ch=ch[0]===v?[]:[v]}
+      save(q,r,{choix:ch,note:el.querySelector('textarea').value},el)});
+    let tmr;el.querySelector('textarea').oninput=e=>{clearTimeout(tmr);tmr=setTimeout(()=>save(q,r,{choix:answers[q.id]?.choix||[],note:e.target.value},el,true),800)};
+    list.appendChild(el)});
+  progress();
+}
+async function save(q,r,a,el,noRender){
+  answers[q.id]=a;try{localStorage.setItem('answers',JSON.stringify(answers))}catch(e){}
+  if(!noRender){el.querySelectorAll('.choices button').forEach(b=>b.setAttribute('aria-pressed',a.choix.includes(b.textContent)))}
+  el.classList.toggle('done',!!(a.choix.length||a.note));progress();
+  const s=el.querySelector('.saved');
+  if(db){try{await db.collection('reponses').doc(q.id).set({ecran:titles[r],question:q.q,choix:a.choix,precision:a.note,date:new Date().toISOString()});s.textContent='Enregistré';s.hidden=false}catch(e){s.textContent="Non enregistré côté serveur : gardé dans ce navigateur";s.hidden=false}}
+  else{s.textContent='Gardé dans ce navigateur';s.hidden=false}
+}
+function progress(){const all=Object.values(QS).flat();const n=all.filter(q=>answers[q.id]&&(answers[q.id].choix.length||answers[q.id].note)).length;$('#q-bar').style.width=(100*n/all.length)+'%';$('#q-count').textContent=`${n} réponse${n>1?'s':''} sur ${all.length}`}
+
+/* ---------- init ---------- */
+renderPortals();renderTools();renderChain();margin();bStart();polTargets();renderRefus();renderAutos();phRender();cStart();
+let start='A';try{start=localStorage.getItem('role')||'A'}catch(e){}
+if(location.hash&&/^#[ADBCM]$/.test(location.hash))start=location.hash.slice(1);
+show(start);
+$('#q-store').textContent='Connexion au stockage des réponses…';
+(async()=>{try{db=await window.claude?.use?.('db')}catch(e){db=null}
+  $('#q-store').textContent=db?'Vos réponses sont enregistrées pour que je les relise.':'Réponses gardées dans ce navigateur uniquement.';
+  if(db){try{const snap=await db.collection('reponses').get();snap.docs.forEach(d=>{const v=d.data();if(v)answers[d.id]={choix:v.choix||[],note:v.precision||''}});const r=document.querySelector('.role[aria-selected="true"]').dataset.role;renderQs(r)}catch(e){}}
+})();
+</script>

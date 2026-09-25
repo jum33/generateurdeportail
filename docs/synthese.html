@@ -1,0 +1,298 @@
+<title>Cahier des charges du générateur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Albert+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#F3F5F4; --surface:#FFFFFF; --sunk:#E8EDEB; --line:#D3DBD8;
+  --ink:#13262B; --ink2:#4A5E63; --ink3:#77898D;
+  --accent:#0E7C74; --accent-soft:#D6EEEA;
+  --partner:#6B4FA1; --partner-soft:#ECE6F6;
+  --client:#1D5FA8; --client-soft:#DDE9F7;
+  --warn:#9A5B0C; --warn-soft:#FBEBD3;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Albert Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#0F1B1E; --surface:#152428; --sunk:#1C2E33; --line:#2A3F45;
+    --ink:#E6EEEC; --ink2:#A9BBBD; --ink3:#7E9295;
+    --accent:#3FB7AA; --accent-soft:#16403C;
+    --partner:#A98BE0; --partner-soft:#2C2342;
+    --client:#6FA8EC; --client-soft:#1A2F48;
+    --warn:#E3A857; --warn-soft:#3A2A12;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0F1B1E; --surface:#152428; --sunk:#1C2E33; --line:#2A3F45;
+  --ink:#E6EEEC; --ink2:#A9BBBD; --ink3:#7E9295;
+  --accent:#3FB7AA; --accent-soft:#16403C;
+  --partner:#A98BE0; --partner-soft:#2C2342;
+  --client:#6FA8EC; --client-soft:#1A2F48;
+  --warn:#E3A857; --warn-soft:#3A2A12;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:40px 72px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px}
+@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr);gap:24px;padding-inline:16px}}
+nav.toc{position:sticky;top:calc(24px + env(safe-area-inset-top,0px));align-self:start;display:grid;gap:4px;font-size:14px}
+nav.toc a{color:var(--ink2);text-decoration:none;padding:4px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover,nav.toc a:focus-visible{color:var(--accent);border-left-color:var(--accent)}
+@media (max-width:860px){nav.toc{position:static;display:flex;flex-wrap:wrap;gap:6px}nav.toc a{border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--surface)}}
+main{display:grid;gap:56px;min-width:0}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:clamp(32px,5vw,46px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:26px;font-weight:700}
+h3{font-size:18px;font-weight:600}
+p{margin:0;max-width:68ch}
+.eyebrow{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+.lede{font-size:19px;color:var(--ink2)}
+section{display:grid;gap:18px;scroll-margin-top:24px}
+.head{display:grid;gap:14px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.fact{background:var(--surface);padding:14px 16px;display:grid;gap:2px}
+.fact b{font-family:var(--mono);font-size:24px;font-variant-numeric:tabular-nums;color:var(--accent)}
+.fact span{font-size:13px;color:var(--ink2)}
+.portal{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:grid;gap:10px}
+.portal ul{margin:0;padding-left:20px;display:grid;gap:4px}
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.pr{border-top:2px solid var(--accent);padding-top:10px;display:grid;gap:4px}
+.pr .id{font-family:var(--mono);font-size:12px;color:var(--ink3)}
+.pr b{font-family:var(--display);font-size:16px}
+.pr p{font-size:14px;color:var(--ink2)}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+.tools{display:grid;gap:14px}
+.tool{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tool header{display:flex;align-items:center;gap:12px;padding:14px 18px;flex-wrap:wrap}
+.tool .k{font-family:var(--mono);font-weight:600;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:#fff;flex:none}
+.tool .who{font-size:13px;color:var(--ink2)}
+.tool .n{margin-left:auto;font-family:var(--mono);font-size:13px;color:var(--ink2)}
+.tool .inner{padding:0 18px 16px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+@media (max-width:700px){.tool .inner{grid-template-columns:minmax(0,1fr)}}
+.tool ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14.5px}
+.secs{display:grid;gap:3px;font-size:14px}
+.secs div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dotted var(--line);padding-bottom:2px}
+.secs span:last-child{font-family:var(--mono);color:var(--ink3);font-variant-numeric:tabular-nums}
+.label{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:4px}
+.tA{border-top:4px solid var(--accent)} .tA .k{background:var(--accent)}
+.tD{border-top:4px solid var(--partner)} .tD .k{background:var(--partner)}
+.tB{border-top:4px solid var(--client)} .tB .k{background:var(--client)}
+.tC{border-top:4px solid var(--client)} .tC .k{background:var(--client)}
+.scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th{text-align:left;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);padding:10px 14px;border-bottom:1px solid var(--line);font-weight:600}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600;white-space:nowrap}
+.chain{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.step{flex:1 1 140px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:2px}
+.step .w{font-size:13px;color:var(--ink2)}
+.step .a{font-family:var(--mono);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.step .c{font-family:var(--mono);font-size:12px;color:var(--ink3)}
+.arrow{align-self:center;color:var(--ink3)}
+.open{display:grid;gap:10px}
+.open div{background:var(--warn-soft);border-radius:10px;padding:12px 16px;display:grid;gap:2px}
+.open b{color:var(--warn)}
+.files{display:grid;gap:8px}
+.files div{display:flex;gap:12px;flex-wrap:wrap;align-items:baseline;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.files code{font-family:var(--mono);font-size:13.5px;color:var(--accent)}
+a{color:var(--accent)}
+footer{font-size:13px;color:var(--ink3)}
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Sommaire">
+    <a href="#idee">L'idée</a>
+    <a href="#principes">Principes</a>
+    <a href="#organisation">Organisation</a>
+    <a href="#outils">Les outils</a>
+    <a href="#decisions">Décisions clés</a>
+    <a href="#argent">Qui gagne quoi</a>
+    <a href="#ouvert">Points ouverts</a>
+    <a href="#documents">Documents</a>
+  </nav>
+
+  <main>
+    <section class="head" id="idee">
+      <div class="eyebrow">Cahier des charges fonctionnel · version 0.43 · 25 septembre 2026</div>
+      <h1>Générateur de portails IA</h1>
+      <p class="lede">Un outil pour créer, à la demande, un portail d'intelligence artificielle dédié à chaque client, entreprise ou collectivité locale. Chaque portail s'installe sur le nom de domaine du client, s'ouvre sur un chat multi-modèles et se configure en parlant plutôt qu'en cliquant.</p>
+      <div class="facts">
+        <div class="fact"><b>386</b><span>fonctionnalités validées</span></div>
+        <div class="fact"><b>500</b><span>portails visés à terme</span></div>
+        <div class="fact"><b>4 + 1</b><span>outils et une application mobile</span></div>
+        <div class="fact"><b>3</b><span>niveaux de partenaires au maximum</span></div>
+        <div class="fact"><b>FR</b><span>hébergement en France par défaut</span></div>
+      </div>
+      <div class="portal">
+        <h3>Ce qu'est un portail</h3>
+        <ul>
+          <li>Une <b>instance dédiée</b> à un client (pas un compte dans un service partagé), à son nom et à ses couleurs.</li>
+          <li>Côté utilisateur : un <b>chat principal</b> et des <b>chats spécialisés</b>, des comptes rendus de réunion, des fiches organisations et contacts, une application Android et iPhone.</li>
+          <li>Côté administration : des <b>politiques de chat</b> qui fixent sources, modèles et actions pour chaque utilisateur, profil ou équipe, et des <b>automatisations</b> créées en parlant.</li>
+          <li>Plus souple et plus lisible que les portails IA existants, avec son propre vocabulaire.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="principes">
+      <h2>Les dix principes</h2>
+      <div class="principles">
+        <div class="pr"><span class="id">P-01</span><b>Agnostique au LLM</b><p>Aucun fournisseur d'IA imposé ; changer de modèle sans refaire le portail.</p></div>
+        <div class="pr"><span class="id">P-02</span><b>Agnostique à l'hébergement</b><p>Hébergé en France par l'opérateur par défaut ; cloud souverain, public ou serveurs du client au choix.</p></div>
+        <div class="pr"><span class="id">P-03</span><b>Marque blanche</b><p>Chaque portail porte la marque du client. Seule l'application mobile commune est à la marque de l'opérateur.</p></div>
+        <div class="pr"><span class="id">P-04</span><b>Agnostique à l'interface</b><p>Web, mobile, widget, Teams, API : le même service sous plusieurs formes.</p></div>
+        <div class="pr"><span class="id">P-05</span><b>Agnostique aux sources</b><p>Fichiers, bases de données, logiciels métier, Microsoft, Google, MCP.</p></div>
+        <div class="pr"><span class="id">P-06</span><b>RGPD et ISO</b><p>Certification ISO 27001 et ISO 42001 visée pour l'opérateur et son hébergement.</p></div>
+        <div class="pr"><span class="id">P-07</span><b>Une instance par client</b><p>Aucune donnée partagée entre clients.</p></div>
+        <div class="pr"><span class="id">P-08</span><b>Pilotage centralisé</b><p>L'opérateur voit les usages et les coûts, jamais les conversations ni les documents.</p></div>
+        <div class="pr"><span class="id">P-09</span><b>Distribution multi-niveaux</b><p>Jusqu'à trois niveaux de partenaires ; chaque niveau ne peut que restreindre.</p></div>
+        <div class="pr"><span class="id">P-10</span><b>Configurer en parlant</b><p>Le client décrit ce qu'il veut ; le portail pose ses questions puis construit.</p></div>
+      </div>
+    </section>
+
+    <section id="organisation">
+      <h2>Qui fait quoi</h2>
+      <p>L'opérateur est le seul à utiliser le générateur. Les partenaires passent par leur espace. Chaque client reçoit sa propre instance, avec une partie admin et une partie utilisateur.</p>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  OP["Opérateur<br/>Générateur (A)"] --> P1["Partenaire niveau 1<br/>Espace partenaire (D)"]
+  P1 --> P2["Sous-partenaire niveau 2"]
+  P2 --> P3["Sous-partenaire niveau 3"]
+  OP --> CD["Client direct"]
+  P1 --> C1["Client"]
+  P3 --> C3["Client"]
+  subgraph INST["Instance d'un client"]
+    B["Portail admin (B)"]
+    C["Portail utilisateur (C)<br/>web + Android + iPhone"]
+  end
+  C1 --> INST
+</pre>
+      </div>
+    </section>
+
+    <section id="outils">
+      <h2>Les outils</h2>
+      <div class="tools">
+        <article class="tool tA">
+          <header><span class="k">A</span><div><h3>Générateur de portail</h3><span class="who">L'opérateur uniquement</span></div><span class="n">105 fonctionnalités</span></header>
+          <div class="inner">
+            <div><div class="label">L'essentiel</div><ul>
+              <li>Créer une instance par client, en France par défaut, et la mettre à jour par lots.</li>
+              <li>Gérer le réseau de partenaires et recevoir leurs demandes de portail.</li>
+              <li>Choisir les outils ouverts et la délégation, calée sur le forfait.</li>
+              <li>Suivre tokens, coûts, marge et enveloppe de chaque portail.</li>
+              <li>Calculer les montants dus et les commissions ; la facturation se fait hors de l'outil.</li>
+            </ul></div>
+            <div><div class="label">Sections</div><div class="secs">
+              <div><span>Instances</span><span>11</span></div><div><span>Réseau de partenaires</span><span>10</span></div><div><span>Outils par portail</span><span>6</span></div><div><span>Délégation</span><span>10</span></div><div><span>Consommation, coûts, KPI</span><span>33</span></div><div><span>Forfaits</span><span>10</span></div><div><span>Montants et commissions</span><span>6</span></div><div><span>Modèles, abonnements, clés</span><span>12</span></div><div><span>Publication</span><span>4</span></div><div><span>Administration</span><span>3</span></div>
+            </div></div>
+          </div>
+        </article>
+
+        <article class="tool tD">
+          <header><span class="k">D</span><div><h3>Espace partenaire</h3><span class="who">Partenaires et sous-partenaires, à leur marque</span></div><span class="n">18 fonctionnalités</span></header>
+          <div class="inner">
+            <div><div class="label">L'essentiel</div><ul>
+              <li>Demander un portail pour un client par formulaire.</li>
+              <li>Cocher et décocher les options de ses clients, avec effet immédiat.</li>
+              <li>Fixer la tarification de ses clients et sous-partenaires : coefficient ou prix direct.</li>
+              <li>Voir sa marge, ses commissions, et seulement des KPI consolidés pour ses sous-partenaires.</li>
+            </ul></div>
+            <div><div class="label">À savoir</div><ul>
+              <li>Aucun accès aux conversations ni aux documents des clients.</li>
+              <li>Peut suspendre le portail d'un client ; l'opérateur est alerté.</li>
+            </ul></div>
+          </div>
+        </article>
+
+        <article class="tool tB">
+          <header><span class="k">B</span><div><h3>Portail admin du client</h3><span class="who">Administrateurs, gestionnaires IA, responsables d'équipe</span></div><span class="n">178 fonctionnalités</span></header>
+          <div class="inner">
+            <div><div class="label">L'essentiel</div><ul>
+              <li>Créer en parlant : chats spécialisés, automatisations, formulaires, ensembles de sources.</li>
+              <li>Politiques de chat : sources, modèles, processus et libertés, pour un utilisateur, un profil ou une équipe ; la plus restrictive l'emporte.</li>
+              <li>Automatisations relues sur un schéma, testées à blanc, avec validation humaine et arrêt d'urgence.</li>
+              <li>Fiches organisations et contacts, mini-CRM et prospection, en interne ou via Pennylane, Zoho, Notion.</li>
+              <li>Tableau de bord complet (usage, coûts, modèles, équipes, carbone, qualité), coûts coefficient compris.</li>
+            </ul></div>
+            <div><div class="label">Sections</div><div class="secs">
+              <div><span>Création en parlant</span><span>18</span></div><div><span>Politiques de chat</span><span>31</span></div><div><span>Automatisations</span><span>32</span></div><div><span>Utilisateurs, profils, équipes</span><span>13</span></div><div><span>Fiches</span><span>31</span></div><div><span>Intégrations et MCP</span><span>9</span></div><div><span>Modèles, abonnements, clés</span><span>7</span></div><div><span>Sources de données</span><span>6</span></div><div><span>Personnalisation</span><span>8</span></div><div><span>Tableau de bord (KPI)</span><span>19</span></div><div><span>Supervision</span><span>4</span></div>
+            </div></div>
+          </div>
+        </article>
+
+        <article class="tool tC">
+          <header><span class="k">C</span><div><h3>Portail utilisateur et application mobile</h3><span class="who">Agents et salariés du client</span></div><span class="n">85 fonctionnalités</span></header>
+          <div class="inner">
+            <div><div class="label">L'essentiel</div><ul>
+              <li>Chat principal qui propose de lui-même le bon chat spécialisé ; modèle choisi automatiquement.</li>
+              <li>« Pourquoi cette réponse ? » sous chaque réponse ; refus expliqués avec la personne à contacter.</li>
+              <li>Comptes rendus : locuteurs nommés, présents, quorum et votes, relecture en parlant, validation.</li>
+              <li>Application Android et iPhone : chat vocal, photo de document, enregistrement de réunion hors connexion jusqu'à 4 heures.</li>
+            </ul></div>
+            <div><div class="label">Sections</div><div class="secs">
+              <div><span>Chat</span><span>14</span></div><div><span>Documents</span><span>3</span></div><div><span>Comptes rendus</span><span>25</span></div><div><span>Interfaces et canaux</span><span>8</span></div><div><span>Applications mobiles</span><span>19</span></div><div><span>Espace personnel</span><span>16</span></div>
+            </div></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="decisions">
+      <h2>Décisions clés</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>Sujet</th><th>Décision</th></tr></thead>
+        <tbody>
+          <tr><td>Tarification</td><td>Forfaits avec ou sans usage inclus, jamais de licence par utilisateur. Coefficient multiplicateur ou prix direct à chaque niveau, par modèle si besoin.</td></tr>
+          <tr><td>Facturation</td><td>L'opérateur facture tous les partenaires et reverse les commissions. Le client final est facturé par l'opérateur ou par le partenaire. L'outil calcule, il ne facture pas.</td></tr>
+          <tr><td>Modèles et clés</td><td>Gérés par l'opérateur ou délégués au client selon le forfait. Les KPI remontent toujours au générateur.</td></tr>
+          <tr><td>Consommation</td><td>Par équipe ou par utilisateur nominatif, au choix de chaque portail. Pseudonymisée hors du portail du client.</td></tr>
+          <tr><td>Droits</td><td>Utilisateur, profil, équipe. La règle la plus restrictive l'emporte. Les responsables d'équipe peuvent seulement durcir.</td></tr>
+          <tr><td>Données personnelles</td><td>L'utilisateur exerce ses droits par une demande à l'admin, traitée sous un mois. L'admin ne lit pas les conversations.</td></tr>
+          <tr><td>Réunions</td><td>Voix séparées puis nommées par l'utilisateur, sans empreinte vocale. Audio et transcription conservés pour une durée réglable.</td></tr>
+          <tr><td>Logiciels externes</td><td>Via MCP, sans copie dans le portail, écriture après validation.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="argent">
+      <h2>Qui gagne quoi, sur 100 € d'usage réel</h2>
+      <div class="chain">
+        <div class="step"><span class="w">Coût réel des modèles</span><span class="a">100 €</span><span class="c">&nbsp;</span></div>
+        <span class="arrow">→</span>
+        <div class="step"><span class="w">Part de l'opérateur</span><span class="a">130 €</span><span class="c">× 1,30 fixé par l'opérateur</span></div>
+        <span class="arrow">→</span>
+        <div class="step"><span class="w">Payé par le sous-partenaire</span><span class="a">156 €</span><span class="c">× 1,20 fixé par le partenaire</span></div>
+        <span class="arrow">→</span>
+        <div class="step"><span class="w">Vu par le client</span><span class="a">195 €</span><span class="c">× 1,25 fixé par le sous-partenaire</span></div>
+      </div>
+      <p>L'opérateur calcule 156 € dus par le sous-partenaire, garde 130 € et reverse 26 € de commission au partenaire. Le coefficient accordé à un sous-partenaire est pris sur la marge du partenaire, jamais sur celle de l'opérateur.</p>
+    </section>
+
+    <section id="ouvert">
+      <h2>Points encore ouverts</h2>
+      <div class="open">
+        <div><b>Logiciels à connecter par MCP</b><span>Pennylane, Zoho et Notion sont retenus ; la liste reste à compléter.</span></div>
+        <div><b>Suite bureautique française</b><span>Intégration reportée, à étudier plus tard.</span></div>
+        <div><b>Documents de conseil municipal</b><span>Procès-verbal, liste des délibérations et compte rendu séparés : conformité à faire vérifier par un juriste.</span></div>
+      </div>
+    </section>
+
+    <section id="documents">
+      <h2>Documents du projet</h2>
+      <div class="files">
+        <div><code>docs/cahier-des-charges.md</code><span>Le cahier des charges complet : principes, acteurs, 386 fonctionnalités, exigences RGPD et ISO.</span></div>
+        <div><code>maquette/maquette.html</code><span>Maquette cliquable des cinq écrans, avec un exemple fictif (Mairie de Saint-Aubin). En ligne : <a href="https://claude.ai/artifact/V79TyeecbWwxtj49Bpp3Gb">ouvrir la maquette</a>.</span></div>
+        <div><code>docs/stack-technique.md</code><span>Première recommandation technique, mise de côté pour l'instant.</span></div>
+      </div>
+      <p style="font-size:14px;color:var(--ink2)">Dépôt GitHub : jum33/generateurdeportail, branche claude/magical-gauss-etipiu.</p>
+    </section>
+
+    <footer>Synthèse du cahier des charges v0.43. Le document de référence reste docs/cahier-des-charges.md.</footer>
+  </main>
+</div>
